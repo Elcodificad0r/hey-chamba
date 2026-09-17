@@ -10,8 +10,16 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
+/* Nombre y apellido: dos palabras de al menos dos letras. En la puerta del
+   festival el equipo coteja este nombre contra la identificación, y con un
+   nombre de pila suelto no se puede. La misma regla vive en la landing;
+   aquí se repite porque el navegador se puede saltar. */
+const nombreCompleto = z.string().trim().min(1).max(120)
+  .refine(valor => valor.split(/\s+/).filter(parte => parte.length >= 2).length >= 2,
+    "Escribe tu nombre y tu apellido.");
+
 const fase1Schema = z.object({
-  nombre: z.string().trim().min(1).max(120),
+  nombre: nombreCompleto,
   telefono: z.string().trim().max(40).optional().default(""),
   email: z.string().trim().email().max(160),
 });

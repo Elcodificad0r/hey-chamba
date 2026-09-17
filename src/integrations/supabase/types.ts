@@ -14,6 +14,38 @@ export type Database = {
   }
   public: {
     Tables: {
+      asistencias: {
+        Row: {
+          escaneado_en: string
+          escaneado_por: string | null
+          id: string
+          primera: boolean
+          registro_id: string
+        }
+        Insert: {
+          escaneado_en?: string
+          escaneado_por?: string | null
+          id?: string
+          primera?: boolean
+          registro_id: string
+        }
+        Update: {
+          escaneado_en?: string
+          escaneado_por?: string | null
+          id?: string
+          primera?: boolean
+          registro_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "asistencias_registro_id_fkey"
+            columns: ["registro_id"]
+            isOneToOne: false
+            referencedRelation: "registros"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       registros: {
         Row: {
           ciudad: string | null

@@ -13,7 +13,8 @@
 - [x] QR seguro: el token del pase nace al confirmar el correo y el QR apunta a `/pase?p=<token>`.
       Adivinar el folio ya no sirve de nada.
 - [x] Botón para llevarse el QR (PNG, y "Guardar en Fotos" en iPhone).
-- [ ] Usar el QR para el acceso al festival virtual / tomar asistencia: el pase vive en `/pase?p=...`
-      y ya sabe si la persona confirmó; falta la parte de marcar la asistencia.
+- [x] Asistencia del festival: tabla `asistencias` y pantalla `/checkin` para el equipo en la puerta.
+      Lee el QR con la cámara, registra la entrada y avisa si un pase se escanea dos veces.
+      La protege `CODIGO_STAFF`; hay que ponerla también en Vercel.
 - [ ] Pase en Apple Wallet (.pkpass): necesita una cuenta de Apple Developer y un
       certificado Pass Type ID. Sin eso no se puede firmar el pase.

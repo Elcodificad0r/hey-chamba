@@ -20,15 +20,27 @@ export default function Landing({ showGrid = true, showFotos = true, showFormula
   const toggleMenu = () => setMenuOpen(v => !v);
   const closeMenu = () => setMenuOpen(false);
   const noSubmit = e => e.preventDefault();
+  const [errorNombre, setErrorNombre] = useState('');
 
   /* El globo del formulario se precarga aquí, en tiempo muerto. */
   useEffect(() => { preloadVoxelGlobe(); }, []);
+
+  /* Necesitamos nombre y apellido: con el puro nombre de pila no podemos
+     cotejar a nadie contra su identificación en la puerta del festival. */
+  const nombreCompleto = valor => valor.trim().split(/\s+/).filter(parte => parte.length >= 2).length >= 2;
 
   const submitRegistro = async e => {
     e.preventDefault();
     const d = {};
     new FormData(e.target).forEach((v, k) => { d[k] = v; });
     d.enviado = new Date().toISOString();
+
+    if (!nombreCompleto(d.nombre || '')) {
+      setErrorNombre('Escribe tu nombre y tu apellido, separados por un espacio.');
+      e.target.querySelector('#hc-nombre')?.focus();
+      return;
+    }
+    setErrorNombre('');
 
     /* Fase 1: guardamos nombre, telefono y correo en la base y nos traemos el folio interno. */
     let folio = '';
@@ -568,8 +580,9 @@ export default function Landing({ showGrid = true, showFotos = true, showFormula
                   <div className="[background:#FFFFFF] [border-radius:24px] [padding:20px] flex flex-col gap-[20px]">
                     <div className="grid [grid-template-columns:repeat(auto-fit,minmax(240px,1fr))] gap-[20px]">
                       <div className="flex flex-col gap-[8px]">
-                        <label htmlFor="hc-nombre" className="[font-weight:700] [font-size:14px] [color:#1E1E1E]">Nombre</label>
-                        <input id="hc-nombre" name="nombre" type="text" placeholder="Ana Ramírez" className="[height:56px] [padding:16px_20px] [border:2px_solid_#1E1E1E] [border-radius:24px] [font-size:16px] [color:#1E1E1E] [background:#FFFFFF]" />
+                        <label htmlFor="hc-nombre" className="[font-weight:700] [font-size:14px] [color:#1E1E1E]">Nombre y apellido</label>
+                        <input id="hc-nombre" name="nombre" type="text" placeholder="Ana Ramírez" autoComplete="name" aria-invalid={!!errorNombre} aria-describedby={errorNombre ? 'hc-nombre-error' : undefined} onInput={() => setErrorNombre('')} className="[height:56px] [padding:16px_20px] [border:2px_solid_#1E1E1E] [border-radius:24px] [font-size:16px] [color:#1E1E1E] [background:#FFFFFF]" style={errorNombre ? { borderColor: '#C0392B', background: '#FDECEA' } : undefined} />
+                        {errorNombre && <span id="hc-nombre-error" role="alert" className="[font-size:13px] [font-weight:700] [color:#C0392B]">{errorNombre}</span>}
                       </div>
                       <div className="flex flex-col gap-[8px]">
                         <label htmlFor="hc-tel" className="[font-weight:700] [font-size:14px] [color:#1E1E1E]">Teléfono</label>

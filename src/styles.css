@@ -339,3 +339,69 @@ img {
   -webkit-touch-callout: none;
   user-select: none;
 }
+
+/* ─────────────────────────────────────────────────────────────
+   PANTALLA DE ASISTENCIA (/checkin)
+   Para el equipo en la puerta, casi siempre en celular y con prisa:
+   el resultado tiene que leerse de un vistazo y de lejos.
+   ───────────────────────────────────────────────────────────── */
+.checkin{min-height:100dvh;display:flex;flex-direction:column;gap:14px;padding:14px}
+.checkin-acceso{max-width:420px;margin:0 auto}
+.checkin-candado{width:44px;height:44px;color:var(--lime)}
+.checkin-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;background:var(--background);border:2px solid var(--ink);border-radius:20px;box-shadow:4px 4px 0 var(--ink)}
+.checkin-header>div:first-child{display:flex;flex-direction:column}
+.checkin-header strong{font-weight:900;font-size:16px;color:var(--ink)}
+.checkin-header span{font-size:13px;color:oklch(.45 0 0)}
+.checkin-conteo{display:flex;flex-direction:column;align-items:flex-end}
+.checkin-conteo b{font-family:var(--font-title);font-weight:900;font-size:28px;line-height:1;color:var(--ink)}
+.checkin-conteo span{font-size:12px;color:oklch(.45 0 0)}
+
+.checkin-camara{position:relative;flex:1;min-height:240px;border:2px solid var(--ink);border-radius:24px;overflow:hidden;background:#000;box-shadow:5px 5px 0 var(--ink)}
+.checkin-video{width:100%;height:100%;object-fit:cover;display:block}
+/* Las cuatro esquinas de la mira. */
+.checkin-mira{position:absolute;inset:14%;pointer-events:none}
+.checkin-mira i{position:absolute;width:34px;height:34px;border:4px solid var(--lime)}
+.checkin-mira i:nth-child(1){top:0;left:0;border-right:0;border-bottom:0;border-radius:12px 0 0 0}
+.checkin-mira i:nth-child(2){top:0;right:0;border-left:0;border-bottom:0;border-radius:0 12px 0 0}
+.checkin-mira i:nth-child(3){bottom:0;left:0;border-right:0;border-top:0;border-radius:0 0 0 12px}
+.checkin-mira i:nth-child(4){bottom:0;right:0;border-left:0;border-top:0;border-radius:0 0 12px 0}
+.checkin-error-camara{position:absolute;inset:auto 12px 12px;margin:0;padding:12px;text-align:center;font-size:14px;font-weight:700;color:#fff;background:oklch(.5 .2 25);border-radius:14px}
+
+.checkin-resultado{display:flex;align-items:center;gap:14px;padding:18px;border:2px solid var(--ink);border-radius:24px;box-shadow:5px 5px 0 var(--ink);background:var(--background);transition:background .12s}
+.checkin-resultado svg{width:34px;height:34px;flex:none}
+/* El nombre va grande a propósito: es lo único que el equipo puede
+   cotejar contra la identificación de quien está enfrente. El QR dice
+   de quién ES el pase, no quién lo trae. */
+.checkin-resultado strong{display:block;font-family:var(--font-title);font-weight:900;font-size:clamp(22px,6vw,30px);line-height:1.05;color:var(--ink)}
+.checkin-resultado span{font-size:14px;color:oklch(.32 0 0)}
+.checkin-resultado.is-entrada{background:var(--lime)}
+.checkin-cotejar{margin:0;text-align:center;font-size:13px;font-weight:700;color:oklch(.45 0 0)}
+.checkin-resultado.is-repetido,.checkin-resultado.is-sin_confirmar{background:oklch(.88 .17 85)}
+.checkin-resultado.is-desconocido,.checkin-resultado.is-error{background:oklch(.72 .19 25)}
+.checkin-nota{margin:0;text-align:center;font-size:13px;font-weight:700;color:var(--ink)}
+
+/* ─────────────────────────────────────────────────────────────
+   CURP: 18 CASILLAS Y CUENTA REGRESIVA
+   Nadie se sabe su CURP de memoria y el campo vacío no dice nada.
+   Las casillas se van llenando y el texto avisa cuántas faltan;
+   si los 18 están pero el formato no cuadra, se pone en ámbar.
+   ───────────────────────────────────────────────────────────── */
+.curp-input{transition:border-color .15s, box-shadow .15s}
+.curp-input.is-faltan{border-color:oklch(.72 .16 85)}
+.curp-input.is-bien{border-color:oklch(.62 .17 145)}
+.curp-input.is-mal{border-color:oklch(.58 .2 25)}
+
+.curp-contador{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:-4px}
+.curp-contador>span{font-size:14px;font-weight:700;color:oklch(.42 0 0)}
+.curp-contador.is-faltan>span{color:oklch(.52 .16 70)}
+.curp-contador.is-bien>span{color:oklch(.5 .17 145)}
+.curp-contador.is-mal>span{color:oklch(.55 .2 25)}
+
+.curp-casillas{display:flex;gap:3px;justify-content:center;max-width:100%}
+.curp-casillas i{width:10px;height:5px;border-radius:3px;background:oklch(.85 0 0);transition:background .12s}
+.curp-casillas i.is-llena{background:var(--ink)}
+.curp-contador.is-bien .curp-casillas i.is-llena{background:oklch(.62 .17 145)}
+.curp-contador.is-mal .curp-casillas i.is-llena{background:oklch(.58 .2 25)}
+/* Cada 4 casillas dejamos un respiro: se leen por bloques.
+   Las 18 caben en una línea hasta en pantallas de 320px. */
+.curp-casillas i:nth-child(4n):not(:last-child){margin-right:6px}

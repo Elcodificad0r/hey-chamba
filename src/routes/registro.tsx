@@ -380,6 +380,15 @@ function Registro() {
   };
   /* Antes de avanzar revisamos la edad: si es menor de 18 sale la disculpa
      y no la dejamos seguir (la edad se escribe a mano o se lee de la CURP). */
+  /* La CURP: cuántos lleva y si el formato cuadra.
+     Las 18 posiciones son 4 letras + 6 dígitos de fecha + 1 letra de sexo
+     + 5 letras de estado y consonantes + 2 al final. */
+  const curpEscrita = String(answers["curp"] ?? "");
+  const curpBienFormada = /^[A-Z]{4}\d{6}[HMX][A-Z]{5}[0-9A-Z]\d$/.test(curpEscrita);
+  const estadoCurp = curpEscrita.length === 0 ? "vacia"
+    : curpEscrita.length < 18 ? "faltan"
+    : curpBienFormada ? "bien" : "mal";
+
   const edadEscrita = Number(answers["edad"] ?? 0);
   const edadCurp = edadDesdeCurp(String(answers["curp"] ?? ""));
   // En cuanto la CURP delata que es menor de 18, avisamos desde ahí mismo.
@@ -549,7 +558,23 @@ function Registro() {
       </div> : waiting ? <div className="survey-waiting" data-q-part><img src={formArt.waiting} alt=""/><h1>¡Gracias!</h1><p>Guardamos {city.trim() ? `tu ciudad (${city.trim()})` : "tu ciudad"}. En cuanto HeyChamba llegue ahí, nos ponemos en contacto contigo.</p><Link to="/" className="survey-next"><Globe/> Volver al inicio</Link><Button onClick={() => { setIndex(0); setWaiting(false); setPostal(null); setPostalState("idle"); setCity(""); setAnswers({ emp: 1 }); }} className="survey-reset">Volver a empezar</Button></div> : <>
         <div className="survey-question-heading" data-q-part><div><h1>{q.title}</h1>{q.note && <p>{q.note}</p>}</div><img src={q.art} alt="" className="hc-float"/></div>
         {q.type === "cp" && <div className="cp-area" data-q-part><VoxelGlobe cp={cp}/><input autoFocus inputMode="numeric" maxLength={5} value={cp} onInput={event => { const nextCp = event.currentTarget.value.replace(/\D/g, ""); if (nextCp) started.current = true; setAnswers({ ...answers, cp: nextCp, col: "" }); checkPostalCode(nextCp); }} onChange={() => undefined} placeholder={q.placeholder}/>{postalState === "loading" && <div className="cp-lookup"><span/> Consultando código postal…</div>}{cpValid && <div className="cp-status"><MapPin/> {postal.city} · {cp}</div>}{postalState === "missing" && <div className="cp-error">No encontramos ese código postal. Revísalo o dinos de dónde eres.</div>}{postalState === "error" && <div className="cp-error">No pudimos consultar el código postal. Revísalo o dinos de dónde eres.</div>}{showCityForm && <div className="cp-outside"><strong>HeyChamba aún no está en tu ciudad.</strong><span>Dinos de dónde eres y nos ponemos en contacto contigo.</span><div className="city-autocomplete"><input value={city} onChange={event => { setCity(event.target.value); setCityOpen(true); }} onClick={() => setCityOpen(false)} onBlur={() => window.setTimeout(() => setCityOpen(false), 120)} placeholder="Escribe tu ciudad" autoComplete="off" role="combobox" aria-expanded={citySuggestions.length > 0}/>{citySuggestions.length > 0 && <div className="city-suggestions" role="listbox">{citySuggestions.map(suggestion => <Button key={suggestion} type="button" role="option" onClick={() => { setCity(suggestion); setCityOpen(false); }}><MapPin/><span>{suggestion}</span></Button>)}</div>}</div><Button disabled={city.trim().length < 2} onClick={() => { void guardarEspera({ data: { folio, ciudad: city.trim(), codigoPostal: cp } }).then(res => setFolio(res.folio)).catch(() => undefined); setWaiting(true); }} className="survey-next">Avísenme cuando lleguen</Button></div>}</div>}
-        {q.type === "text" && <><input data-q-part autoFocus inputMode={q.key === "edad" ? "numeric" : "text"} maxLength={q.max} value={String(selected ?? "")} onChange={e => setAnswers({ ...answers, [q.key]: q.key === "curp" ? e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "") : e.target.value.replace(q.key === "edad" ? /\D/g : /$^/, "") })} placeholder={q.placeholder} className="survey-input"/>{q.help && <span className="survey-help" data-q-part>{q.help}</span>}</>}
+        {q.type === "text" && <>
+          <input data-q-part autoFocus inputMode={q.key === "edad" ? "numeric" : "text"} maxLength={q.max} value={String(selected ?? "")} onChange={e => setAnswers({ ...answers, [q.key]: q.key === "curp" ? e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "") : e.target.value.replace(q.key === "edad" ? /\D/g : /$^/, "") })} placeholder={q.placeholder} className={`survey-input ${q.key === "curp" ? `curp-input is-${estadoCurp}` : ""}`}/>
+          {/* La CURP son 18 caracteres exactos y nadie se los sabe de memoria:
+              le vamos diciendo cuántos faltan y qué hacer. */}
+          {q.key === "curp" && <div data-q-part className={`curp-contador is-${estadoCurp}`} role="status" aria-live="polite">
+            <div className="curp-casillas" aria-hidden="true">
+              {Array.from({ length: 18 }, (_, i) => <i key={i} className={i < curpEscrita.length ? "is-llena" : ""}/>)}
+            </div>
+            <span>{
+              curpEscrita.length === 0 ? "18 caracteres, como vienen en tu acta"
+              : curpEscrita.length < 18 ? `Te faltan ${18 - curpEscrita.length} de 18`
+              : estadoCurp === "mal" ? "Son 18, pero algo no cuadra. Revísala contra tu acta."
+              : "¡Listo! Los 18 caracteres"
+            }</span>
+          </div>}
+          {q.help && <span className="survey-help" data-q-part>{q.help}</span>}
+        </>}
         {(q.type === "rows" || q.type === "tiles") && <div data-q-part className={q.type === "rows" ? "survey-rows" : `survey-tiles survey-tiles-${q.key}`}>{q.key === "col" && options.length === 0 ? <div className="cp-error">Regresa y verifica tu código postal para consultar sus colonias.</div> : options.map(({ label, Icon }, optionIndex) => { const active = Array.isArray(selected) ? selected.includes(label) : selected === label; return <Button key={label} onClick={() => choose(label)} disabled={q.key === "col" && !cpValid} className={`survey-option ${active ? "is-active" : ""}`}>{q.key === "idi" ? <LanguageFlags count={optionIndex + 1}/> : q.key === "dep" && label === "Sí" ? <DependentFamily count={selected === "Sí" ? Number(answers["depNum"] ?? 1) : 1}/> : Icon ? <Icon/> : null}<span>{label}</span></Button>; })}</div>}
         {q.type === "faces" && <div data-q-part><div className="survey-faces">{[1,2,3,4,5].map((n) => <Button key={n} onClick={() => choose(String(n))} className={`face-option ${selected === String(n) ? "is-active" : ""}`}><OriginalFace index={n - 1}/><b>{n}</b></Button>)}</div><div className="scale-labels"><span>Nada preparado</span><span>Muy preparado</span></div></div>}
         {q.type === "thermo" && <div data-q-part><span className="scale-caption">Poco probable</span><div className="survey-thermo">{Array.from({ length: 10 }, (_, i) => String(i + 1)).map(n => <Button key={n} onClick={() => choose(n)} className={`thermo-option ${selected === n ? "is-active" : ""}`}>{n}</Button>)}</div><span className="scale-caption align-right">Segurísimo</span></div>}
