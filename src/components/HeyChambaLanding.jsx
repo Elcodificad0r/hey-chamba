@@ -12,7 +12,9 @@ import { guardarFase1 } from "@/lib/registros.functions";
 
 export default function Landing({ showGrid = true, showFotos = true, showFormulario = true }) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [abiertas, setAbiertas] = useState([1, 2, 3, 4, 5, 6]);
+  /* El FAQ arranca con la primera abierta y el resto cerradas: así se ve
+     de un vistazo cuántas preguntas hay, y de paso queda claro que se abren. */
+  const [abiertas, setAbiertas] = useState([1]);
   const [bloque, setBloque] = useState(1);
   const ancla = useRef(null);
   const root = useRef(null);
@@ -671,7 +673,7 @@ export default function Landing({ showGrid = true, showFotos = true, showFormula
             </div>
             <div className="flex flex-col">
               <div className="[border-bottom:2px_solid_#1E1E1E]">
-                <button type="button" onClick={t1} className="w-full flex items-center justify-between gap-[16px] [padding:18px_0] [background:transparent] border-none text-left cursor-pointer">
+                <button type="button" onClick={t1} aria-expanded={open1} className="w-full flex items-center justify-between gap-[16px] [padding:18px_0] [background:transparent] border-none text-left cursor-pointer">
                   <span className="font-title [font-weight:800] [font-size:18px] [line-height:1.2] [color:#1E1E1E]">¿Cuánto cuesta entrar?</span>
                   <span aria-hidden="true" className="hc-float [font-size:24px] [font-weight:700] [line-height:1] [color:#1E1E1E]">{ind1}</span>
                 </button>
@@ -680,7 +682,7 @@ export default function Landing({ showGrid = true, showFotos = true, showFormula
                 </>)}
               </div>
               <div className="[border-bottom:2px_solid_#1E1E1E]">
-                <button type="button" onClick={t2} className="w-full flex items-center justify-between gap-[16px] [padding:18px_0] [background:transparent] border-none text-left cursor-pointer">
+                <button type="button" onClick={t2} aria-expanded={open2} className="w-full flex items-center justify-between gap-[16px] [padding:18px_0] [background:transparent] border-none text-left cursor-pointer">
                   <span className="font-title [font-weight:800] [font-size:18px] [line-height:1.2] [color:#1E1E1E]">¿Necesito CV?</span>
                   <span aria-hidden="true" className="hc-float [font-size:24px] [font-weight:700] [line-height:1] [color:#1E1E1E]">{ind2}</span>
                 </button>
@@ -689,7 +691,7 @@ export default function Landing({ showGrid = true, showFotos = true, showFormula
                 </>)}
               </div>
               <div className="[border-bottom:2px_solid_#1E1E1E]">
-                <button type="button" onClick={t3} className="w-full flex items-center justify-between gap-[16px] [padding:18px_0] [background:transparent] border-none text-left cursor-pointer">
+                <button type="button" onClick={t3} aria-expanded={open3} className="w-full flex items-center justify-between gap-[16px] [padding:18px_0] [background:transparent] border-none text-left cursor-pointer">
                   <span className="font-title [font-weight:800] [font-size:18px] [line-height:1.2] [color:#1E1E1E]">¿Es mi primera chamba, puedo entrar?</span>
                   <span aria-hidden="true" className="hc-float [font-size:24px] [font-weight:700] [line-height:1] [color:#1E1E1E]">{ind3}</span>
                 </button>
@@ -698,7 +700,7 @@ export default function Landing({ showGrid = true, showFotos = true, showFormula
                 </>)}
               </div>
               <div className="[border-bottom:2px_solid_#1E1E1E]">
-                <button type="button" onClick={t4} className="w-full flex items-center justify-between gap-[16px] [padding:18px_0] [background:transparent] border-none text-left cursor-pointer">
+                <button type="button" onClick={t4} aria-expanded={open4} className="w-full flex items-center justify-between gap-[16px] [padding:18px_0] [background:transparent] border-none text-left cursor-pointer">
                   <span className="font-title [font-weight:800] [font-size:18px] [line-height:1.2] [color:#1E1E1E]">¿Para qué quieren mi código postal?</span>
                   <span aria-hidden="true" className="hc-float [font-size:24px] [font-weight:700] [line-height:1] [color:#1E1E1E]">{ind4}</span>
                 </button>
@@ -707,7 +709,7 @@ export default function Landing({ showGrid = true, showFotos = true, showFormula
                 </>)}
               </div>
               <div className="[border-bottom:2px_solid_#1E1E1E]">
-                <button type="button" onClick={t5} className="w-full flex items-center justify-between gap-[16px] [padding:18px_0] [background:transparent] border-none text-left cursor-pointer">
+                <button type="button" onClick={t5} aria-expanded={open5} className="w-full flex items-center justify-between gap-[16px] [padding:18px_0] [background:transparent] border-none text-left cursor-pointer">
                   <span className="font-title [font-weight:800] [font-size:18px] [line-height:1.2] [color:#1E1E1E]">¿Cuándo y dónde es?</span>
                   <span aria-hidden="true" className="hc-float [font-size:24px] [font-weight:700] [line-height:1] [color:#1E1E1E]">{ind5}</span>
                 </button>
@@ -716,7 +718,7 @@ export default function Landing({ showGrid = true, showFotos = true, showFormula
                 </>)}
               </div>
               <div className="[border-bottom:2px_solid_#1E1E1E]">
-                <button type="button" onClick={t6} className="w-full flex items-center justify-between gap-[16px] [padding:18px_0] [background:transparent] border-none text-left cursor-pointer">
+                <button type="button" onClick={t6} aria-expanded={open6} className="w-full flex items-center justify-between gap-[16px] [padding:18px_0] [background:transparent] border-none text-left cursor-pointer">
                   <span className="font-title [font-weight:800] [font-size:18px] [line-height:1.2] [color:#1E1E1E]">Soy marca, ¿cómo participo?</span>
                   <span aria-hidden="true" className="hc-float [font-size:24px] [font-weight:700] [line-height:1] [color:#1E1E1E]">{ind6}</span>
                 </button>
@@ -776,7 +778,6 @@ export default function Landing({ showGrid = true, showFotos = true, showFormula
               <div className="flex flex-col gap-[10px]">
                 <span className="[font-weight:700] [font-size:14px] [color:#FFFFFF]">Redes</span>
                 <a href="https://www.instagram.com/heychamba/" target="_blank" rel="noreferrer" className="[font-size:14px] [color:rgba(255,255,255,0.8)]">Instagram</a>
-                <a href="#tt" className="[font-size:14px] [color:rgba(255,255,255,0.8)]">TikTok</a>
               </div>
             </div>
             <span className="[font-size:13px] [color:rgba(255,255,255,0.6)]">© 2026 HeyChamba. Festival virtual de empleo, México.</span>
