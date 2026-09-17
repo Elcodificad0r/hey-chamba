@@ -1,4 +1,9 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+
+/* El portal de la cuenta. Mientras esté vacío, el botón de "mi cuenta" no
+   se pinta en el encabezado: es preferible que no exista a que mande a un
+   sitio que todavía no levanta. Se prende poniendo aquí la dirección. */
+const PORTAL = '';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { icons, photos } from '@/lib/heychamba-assets';
@@ -123,14 +128,22 @@ export default function Landing({ showGrid = true, showFotos = true, showFormula
     <>
       <div ref={root} className="[background:#F3F0E9]">
       
-        <header className="sticky [top:0] [z-index:50] [background:transparent] grid [grid-template-columns:1fr_auto_1fr] items-center gap-[12px] [padding:12px_16px]">
+        <header className="sticky [top:0] [z-index:50] [background:transparent] grid [grid-template-columns:1fr_auto_1fr] items-center gap-[12px] [padding:12px_16px] max-[400px]:gap-[8px] max-[400px]:[padding:10px_10px]">
           <button type="button" aria-label="Menú" onClick={toggleMenu} className="[justify-self:start] [width:52px] [height:44px] flex flex-col items-center justify-center gap-[5px] [background:#C4E539] [border:2px_solid_#1E1E1E] [border-radius:14px] [box-shadow:4px_4px_0_#1E1E1E] cursor-pointer [padding:0]">
             <span className="block [width:22px] [height:3px] [background:#1E1E1E] [border-radius:2px]"></span>
             <span className="block [width:22px] [height:3px] [background:#1E1E1E] [border-radius:2px]"></span>
             <span className="block [width:22px] [height:3px] [background:#1E1E1E] [border-radius:2px]"></span>
           </button>
-          <span className="[justify-self:center] font-title [font-weight:900] [font-size:23px] [letter-spacing:-0.02em] [color:#C4E539] [text-shadow:2px_2px_0_#1E1E1E] whitespace-nowrap">HeyChamba</span>
-          <a href="#registro" className="[justify-self:end] inline-flex items-center justify-center [height:44px] [padding:0_18px] [background:#C4E539] [border:2px_solid_#1E1E1E] [border-radius:14px] [box-shadow:4px_4px_0_#1E1E1E] [font-weight:700] [font-size:14px] [color:#1E1E1E] no-underline whitespace-nowrap">Entrar</a>
+          <span className="[justify-self:center] font-title [font-weight:900] [font-size:23px] max-[400px]:[font-size:19px] [letter-spacing:-0.02em] [color:#C4E539] [text-shadow:2px_2px_0_#1E1E1E] whitespace-nowrap">HeyChamba</span>
+          <div className="[justify-self:end] flex items-center gap-[8px] max-[400px]:gap-[6px]">
+            <a href="#registro" className="inline-flex items-center justify-center [height:44px] max-[400px]:[height:40px] [padding:0_18px] max-[400px]:[padding:0_12px] [background:#C4E539] [border:2px_solid_#1E1E1E] [border-radius:14px] [box-shadow:4px_4px_0_#1E1E1E] [font-weight:700] [font-size:14px] [color:#1E1E1E] no-underline whitespace-nowrap">Entrar</a>
+            {PORTAL && <a href={PORTAL} target="_blank" rel="noreferrer" aria-label="Entrar a mi cuenta" title="Entrar a mi cuenta" className="inline-flex items-center justify-center [width:44px] [height:44px] max-[400px]:[width:40px] max-[400px]:[height:40px] [background:#FFFFFF] [border:2px_solid_#1E1E1E] [border-radius:14px] [box-shadow:4px_4px_0_#1E1E1E] [color:#1E1E1E] no-underline">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="[width:21px] [height:21px]" aria-hidden="true">
+                <circle cx="12" cy="8" r="3.6"/>
+                <path d="M4.8 20.2a7.6 7.6 0 0 1 14.4 0"/>
+              </svg>
+            </a>}
+          </div>
         </header>
         {menuOpen && (<>
           <div className="fixed inset-0 [z-index:60] [background:#C4E539] overflow-y-auto [padding:16px_clamp(20px,5vw,72px)_40px]">
