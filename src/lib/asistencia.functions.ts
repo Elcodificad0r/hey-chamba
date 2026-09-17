@@ -53,8 +53,9 @@ export const registrarAsistencia = createServerFn({ method: "POST" })
     if (!registro) return { estado: "desconocido" as const };
     if (!registro.correo_confirmado) return { estado: "sin_confirmar" as const, nombre: (registro.nombre ?? "") as string };
 
-    /* ¿Ya había entrado? Guardamos el escaneo de todos modos: dos entradas
-       con el mismo pase significa que alguien compartió su captura. */
+    /* Cada pase sirve UNA vez. Si ese QR ya entró, el segundo se rechaza:
+       lo más probable es que alguien haya compartido su captura. Aun así
+       guardamos el intento, para que quede el rastro de lo que pasó. */
     const { data: previas, error: errorPrevias } = await supabaseAdmin
       .from("asistencias")
       .select("escaneado_en")
@@ -73,10 +74,10 @@ export const registrarAsistencia = createServerFn({ method: "POST" })
     if (errorInsert) throw new Error(errorInsert.message);
 
     return {
-      estado: yaHabiaEntrado ? ("repetido" as const) : ("entrada" as const),
+      estado: yaHabiaEntrado ? ("ya_usado" as const) : ("entrada" as const),
       nombre: (registro.nombre ?? "") as string,
       entradaPrevia: (previas?.[0]?.escaneado_en ?? null) as string | null,
-      escaneosPrevios: previas?.length ?? 0,
+      intentosPrevios: previas?.length ?? 0,
     };
   });
 
@@ -93,7 +94,8 @@ export const resumenAsistencia = createServerFn({ method: "POST" })
       .eq("primera", true);
     if (e1) throw new Error(e1.message);
 
-    const { count: repetidos, error: e2 } = await supabaseAdmin
+    /* Los intentos rechazados: pases que alguien quiso usar dos veces. */
+    const { count: rechazados, error: e2 } = await supabaseAdmin
       .from("asistencias")
       .select("*", { count: "exact", head: true })
       .eq("primera", false);
@@ -105,5 +107,5 @@ export const resumenAsistencia = createServerFn({ method: "POST" })
       .eq("qr_emitido", true);
     if (e3) throw new Error(e3.message);
 
-    return { personas: personas ?? 0, repetidos: repetidos ?? 0, pasesEmitidos: pasesEmitidos ?? 0 };
+    return { personas: personas ?? 0, rechazados: rechazados ?? 0, pasesEmitidos: pasesEmitidos ?? 0 };
   });

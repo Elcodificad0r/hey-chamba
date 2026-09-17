@@ -51,11 +51,18 @@ const esperaSchema = z.object({
   codigoPostal: z.string().trim().max(10).optional().default(""),
 });
 
-/* Fase 1: la persona deja sus datos en la landing y le nace su folio. */
+/* La clave de sesión acompaña a la persona desde que deja sus datos hasta que
+   recoge su pase. Viaja en la URL (`?k=`) y es lo que permite retomar el
+   registro desde el enlace del correo sin que baste con adivinar un folio.
+   Nace una sola vez: si el registro ya tiene una, se respeta. */
+const nuevaClave = () => crypto.randomUUID().replace(/-/g, "");
+
+/* Fase 1: la persona deja sus datos en la landing y le nacen su folio y su clave. */
 export const guardarFase1 = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => fase1Schema.parse(data))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const claveSesion = nuevaClave();
     const { data: fila, error } = await supabaseAdmin
       .from("registros")
       .insert({
@@ -63,11 +70,12 @@ export const guardarFase1 = createServerFn({ method: "POST" })
         telefono: data.telefono,
         email: data.email,
         estatus: "fase1",
+        clave_sesion: claveSesion,
       })
       .select("folio")
       .single();
     if (error) throw new Error(error.message);
-    return { folio: fila.folio as string };
+    return { folio: fila.folio as string, claveSesion };
   });
 
 /* Perfil completo: se pega todo al folio de la fase 1 (o se crea uno nuevo). */
@@ -75,9 +83,13 @@ export const guardarPerfil = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => perfilSchema.parse(data))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    /* La clave se queda en el navegador de quien llenó el registro.
-       Es lo que después lo autoriza a pedir su pase. */
-    const claveSesion = crypto.randomUUID().replace(/-/g, "");
+    /* La clave se queda en el navegador de quien llenó el registro; es lo que
+       después lo autoriza a pedir su pase. Si ya venía de la fase 1, se respeta:
+       pisarla invalidaría el enlace de "retomar" que ya se mandó por correo. */
+    const previa = data.folio
+      ? (await supabaseAdmin.from("registros").select("clave_sesion").eq("folio", data.folio).maybeSingle()).data?.clave_sesion
+      : null;
+    const claveSesion = previa ?? nuevaClave();
     const campos = {
       clave_sesion: claveSesion,
       email_confirmacion: data.emailConfirmacion || null,
@@ -144,7 +156,13 @@ export const guardarNoTerminado = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => noTerminadoSchema.parse(data))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    /* Con esta clave se arma el enlace del recordatorio. */
+    const previa = data.folio
+      ? (await supabaseAdmin.from("registros").select("clave_sesion").eq("folio", data.folio).maybeSingle()).data?.clave_sesion
+      : null;
+    const claveSesion = previa ?? nuevaClave();
     const campos = {
+      clave_sesion: claveSesion,
       estatus: "no_terminado",
       no_terminado: true,
       preguntas_respondidas: data.preguntasRespondidas,
@@ -158,7 +176,7 @@ export const guardarNoTerminado = createServerFn({ method: "POST" })
         .select("folio")
         .maybeSingle();
       if (error) throw new Error(error.message);
-      if (fila?.folio) return { folio: fila.folio as string };
+      if (fila?.folio) return { folio: fila.folio as string, claveSesion };
     }
     const { data: nueva, error: errorInsert } = await supabaseAdmin
       .from("registros")
@@ -166,28 +184,35 @@ export const guardarNoTerminado = createServerFn({ method: "POST" })
       .select("folio")
       .single();
     if (errorInsert) throw new Error(errorInsert.message);
-    return { folio: nueva.folio as string };
+    return { folio: nueva.folio as string, claveSesion };
   });
 
-/* Retomar: con el folio del enlace del correo traemos el avance guardado
-   para que la persona siga justo donde se quedó. */
+/* Retomar: con el folio y la clave del enlace del correo traemos el avance
+   guardado para que la persona siga justo donde se quedó.
+   La clave es obligatoria: aquí salen nombre, teléfono y correo, y los folios
+   son fechas que se pueden enumerar. Sin ella bastaría adivinar un folio para
+   sacarle los datos de contacto a cualquiera. */
 export const retomarRegistro = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => z.object({ folio: z.string().trim().min(3).max(40) }).parse(data))
+  .inputValidator((data: unknown) => z.object({
+    folio: z.string().trim().min(3).max(40),
+    clave: z.string().trim().min(16).max(64),
+  }).parse(data))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: fila, error } = await supabaseAdmin
       .from("registros")
-      .select("folio, nombre, telefono, email, estatus, preguntas_respondidas, respuestas")
+      .select("folio, nombre, telefono, email, estatus, preguntas_respondidas, respuestas, clave_sesion")
       .eq("folio", data.folio)
       .maybeSingle();
     if (error) throw new Error(error.message);
-    if (!fila) return null;
+    if (!fila || fila.clave_sesion !== data.clave) return null;
     return {
       folio: fila.folio as string,
       nombre: (fila.nombre ?? "") as string,
       telefono: (fila.telefono ?? "") as string,
       email: (fila.email ?? "") as string,
       completo: fila.estatus === "completo",
+      claveSesion: (fila.clave_sesion ?? "") as string,
       preguntasRespondidas: (fila.preguntas_respondidas ?? 0) as number,
       respuestas: (fila.respuestas ?? {}) as Record<string, string | string[] | number>,
     };
@@ -332,5 +357,37 @@ export const consultarPase = createServerFn({ method: "POST" })
     return {
       nombre: (fila.nombre ?? "") as string,
       qrEmitido: Boolean(fila.qr_emitido),
+    };
+  });
+
+/* Recordatorio para quien dejó el registro a medias: el enlace lo regresa
+   justo donde se quedó. Lleva folio y clave, porque del otro lado
+   `retomarRegistro` no entrega nada sin las dos. */
+export const enviarRecordatorio = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) => z.object({
+    folio: z.string().trim().min(3).max(40),
+    clave: z.string().trim().min(16).max(64),
+  }).parse(data))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { correoConfigurado, enviarCorreo, plantillaRecordatorio, urlDelSitio } = await import("@/lib/correo.server");
+
+    const { data: fila, error } = await supabaseAdmin
+      .from("registros")
+      .select("folio, nombre, email, estatus, clave_sesion")
+      .eq("folio", data.folio)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!fila || fila.clave_sesion !== data.clave) return { enviado: false, motivo: "no_encontrado" as const };
+    if (fila.estatus === "completo") return { enviado: false, motivo: "ya_termino" as const };
+    if (!fila.email) return { enviado: false, motivo: "sin_correo" as const };
+
+    const enlace = `${urlDelSitio()}/registro?folio=${encodeURIComponent(fila.folio)}&k=${encodeURIComponent(data.clave)}`;
+    const mensaje = plantillaRecordatorio((fila.nombre ?? "") as string, enlace);
+    const resultado = await enviarCorreo({ para: fila.email, asunto: mensaje.asunto, html: mensaje.html, texto: mensaje.texto });
+    return {
+      enviado: resultado.enviado,
+      motivo: null,
+      enlace: correoConfigurado() ? null : enlace,
     };
   });

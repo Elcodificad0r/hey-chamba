@@ -19,7 +19,7 @@ export const Route = createFileRoute("/checkin")({
 const GUARDADO = "heychamba-staff";
 type Resultado =
   | { estado: "entrada"; nombre: string }
-  | { estado: "repetido"; nombre: string; entradaPrevia: string | null; escaneosPrevios: number }
+  | { estado: "ya_usado"; nombre: string; entradaPrevia: string | null; intentosPrevios: number }
   | { estado: "sin_confirmar"; nombre: string }
   | { estado: "desconocido" }
   | { estado: "error"; mensaje: string };
@@ -35,7 +35,7 @@ function CheckIn() {
   const [errorAcceso, setErrorAcceso] = useState("");
   const [revisando, setRevisando] = useState(false);
   const [resultado, setResultado] = useState<Resultado | null>(null);
-  const [conteo, setConteo] = useState<{ personas: number; repetidos: number; pasesEmitidos: number } | null>(null);
+  const [conteo, setConteo] = useState<{ personas: number; rechazados: number; pasesEmitidos: number } | null>(null);
   const [errorCamara, setErrorCamara] = useState("");
   const video = useRef<HTMLVideoElement>(null);
   const lector = useRef<Lector | null>(null);
@@ -145,13 +145,13 @@ function CheckIn() {
     <div className={`checkin-resultado is-${resultado?.estado ?? "espera"}`} role="status" aria-live="polite">
       {!resultado && <><UserRound/><div><strong>Apunta al QR</strong><span>La cámara lee sola.</span></div></>}
       {resultado?.estado === "entrada" && <><Check/><div><strong>{resultado.nombre || "Pase válido"}</strong><span>Entrada registrada. Coteja el nombre con su identificación.</span></div></>}
-      {resultado?.estado === "repetido" && <><TriangleAlert/><div><strong>{resultado.nombre || "Pase repetido"}</strong><span>Ya había entrado{resultado.entradaPrevia ? ` a las ${hora(resultado.entradaPrevia)}` : ""}. Escaneo #{resultado.escaneosPrevios + 1}.</span></div></>}
+      {resultado?.estado === "ya_usado" && <><X/><div><strong>Este pase ya se usó</strong><span>{resultado.nombre ? `${resultado.nombre} ` : "Alguien "}entró{resultado.entradaPrevia ? ` a las ${hora(resultado.entradaPrevia)}` : ""}. No lo dejes pasar.{resultado.intentosPrevios > 1 ? ` Intento #${resultado.intentosPrevios + 1}.` : ""}</span></div></>}
       {resultado?.estado === "sin_confirmar" && <><TriangleAlert/><div><strong>{resultado.nombre || "Sin confirmar"}</strong><span>Esta persona no confirmó su correo.</span></div></>}
       {resultado?.estado === "desconocido" && <><X/><div><strong>Pase desconocido</strong><span>Ese QR no es de HeyChamba.</span></div></>}
       {resultado?.estado === "error" && <><X/><div><strong>Algo se atoró</strong><span>{resultado.mensaje}</span></div></>}
     </div>
 
     <p className="checkin-cotejar">El QR dice de quién es el pase, no quién lo trae. Pide identificación.</p>
-    {conteo && conteo.repetidos > 0 && <p className="checkin-nota">{conteo.repetidos} escaneo{conteo.repetidos === 1 ? "" : "s"} repetido{conteo.repetidos === 1 ? "" : "s"} en el día.</p>}
+    {conteo && conteo.rechazados > 0 && <p className="checkin-nota">{conteo.rechazados} pase{conteo.rechazados === 1 ? "" : "s"} rechazado{conteo.rechazados === 1 ? "" : "s"} por reúso.</p>}
   </main>;
 }

@@ -18,7 +18,7 @@ export function HeyNav({ onLanding = false }: { onLanding?: boolean }) {
           <div className="flex items-center justify-between border-b-2 border-ink pb-5"><span className="font-display text-2xl font-black">HeyChamba</span><Button aria-label="Cerrar menú" onClick={() => setOpen(false)} className="hc-square bg-ink text-lime"><X /></Button></div>
           <nav className="my-10 flex flex-col font-display text-[clamp(3rem,10vw,7rem)] font-black leading-[.9]">
             <Link to="/" onClick={() => setOpen(false)}>Inicio</Link>
-            <Link to="/registro" search={{ folio: "", nombre: "", telefono: "", email: "" }} onClick={() => setOpen(false)} className="text-transparent [-webkit-text-stroke:2px_var(--ink)]">Registro</Link>
+            <Link to="/registro" search={{ folio: "", k: "", nombre: "", telefono: "", email: "" }} onClick={() => setOpen(false)} className="text-transparent [-webkit-text-stroke:2px_var(--ink)]">Registro</Link>
           </nav>
           <div className="flex gap-4 border-t-2 border-ink pt-6">
             {[icons.lightning, icons.pacman, icons.rock].map((src) => <img key={src} src={src} alt="" className="h-16 w-16 object-contain" />)}

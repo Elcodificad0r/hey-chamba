@@ -22,8 +22,10 @@ export const Route = createFileRoute("/registro")({
   ]}),
   component: Registro,
   /* Los datos de la fase 1 llegan por la URL desde la landing (nombre, teléfono, correo y folio). */
-  validateSearch: (search: { folio?: string; nombre?: string; telefono?: string; email?: string }) => ({
+  validateSearch: (search: { folio?: string; k?: string; nombre?: string; telefono?: string; email?: string }) => ({
     folio: typeof search.folio === "string" ? search.folio : "",
+    /* La llave que trae el enlace del correo para retomar el registro. */
+    k: typeof search.k === "string" ? search.k : "",
     nombre: typeof search.nombre === "string" ? search.nombre : "",
     telefono: typeof search.telefono === "string" ? search.telefono : "",
     email: typeof search.email === "string" ? search.email : "",
@@ -233,7 +235,7 @@ function Registro() {
   const [saveError, setSaveError] = useState("");  // si algo falló al guardar
   /* La confirmación del correo va por su cuenta, aparte del guardado. */
   const [confirmado, setConfirmado] = useState(false); // ya abrió el enlace del correo
-  const [clave, setClave] = useState("");              // autoriza a este navegador a pedir su pase
+  const [clave, setClave] = useState(fase1.k);         // autoriza a este navegador a retomar y a pedir su pase
   const [qrToken, setQrToken] = useState("");          // el secreto del QR, solo tras confirmar
   const [enviando, setEnviando] = useState(false);     // mandando el correo
   const [enviado, setEnviado] = useState(false);       // el correo ya salió
@@ -263,11 +265,12 @@ function Registro() {
   const yaRetomamos = useRef(false);
   useEffect(() => {
     if (yaRetomamos.current) return;
-    if (!fase1.folio || fase1.nombre) return;
+    if (!fase1.folio || !fase1.k || fase1.nombre) return;
     yaRetomamos.current = true;
-    void retomarRegistro({ data: { folio: fase1.folio } })
+    void retomarRegistro({ data: { folio: fase1.folio, clave: fase1.k } })
       .then(reg => {
         if (!reg || reg.completo) return;
+        if (reg.claveSesion) setClave(reg.claveSesion);
         setContacto({ nombre: reg.nombre, telefono: reg.telefono, email: reg.email });
         if (!confirmEmail) setConfirmEmail(reg.email);
         const previas = reg.respuestas as Record<string, string | string[] | number>;
@@ -281,7 +284,7 @@ function Registro() {
       .catch(() => undefined);
     // solo corre una vez al abrir con el enlace
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fase1.folio, fase1.nombre]);
+  }, [fase1.folio, fase1.k, fase1.nombre]);
   const hasStarted = Object.keys(answers).some(key => key !== "emp");
   if (hasStarted || index > 0) started.current = true;
   const shouldBlockLeave = useCallback(() => !allowLeave.current && started.current && !done && !waiting, [done, waiting]);
@@ -557,7 +560,7 @@ function Registro() {
         <Button onClick={() => { setIndex(0); setDone(false); setSaved(false); setConfirmado(false); setEnviado(false); setEnlacePrueba(""); setClave(""); setQrToken(""); yaGuardamos.current = false; yaMandamos.current = false; setAnswers({ emp: 1 }); }} className="survey-reset">Volver a empezar</Button>
       </div> : waiting ? <div className="survey-waiting" data-q-part><img src={formArt.waiting} alt=""/><h1>¡Gracias!</h1><p>Guardamos {city.trim() ? `tu ciudad (${city.trim()})` : "tu ciudad"}. En cuanto HeyChamba llegue ahí, nos ponemos en contacto contigo.</p><Link to="/" className="survey-next"><Globe/> Volver al inicio</Link><Button onClick={() => { setIndex(0); setWaiting(false); setPostal(null); setPostalState("idle"); setCity(""); setAnswers({ emp: 1 }); }} className="survey-reset">Volver a empezar</Button></div> : <>
         <div className="survey-question-heading" data-q-part><div><h1>{q.title}</h1>{q.note && <p>{q.note}</p>}</div><img src={q.art} alt="" className="hc-float"/></div>
-        {q.type === "cp" && <div className="cp-area" data-q-part><VoxelGlobe cp={cp}/><input autoFocus inputMode="numeric" maxLength={5} value={cp} onInput={event => { const nextCp = event.currentTarget.value.replace(/\D/g, ""); if (nextCp) started.current = true; setAnswers({ ...answers, cp: nextCp, col: "" }); checkPostalCode(nextCp); }} onChange={() => undefined} placeholder={q.placeholder}/>{postalState === "loading" && <div className="cp-lookup"><span/> Consultando código postal…</div>}{cpValid && <div className="cp-status"><MapPin/> {postal.city} · {cp}</div>}{postalState === "missing" && <div className="cp-error">No encontramos ese código postal. Revísalo o dinos de dónde eres.</div>}{postalState === "error" && <div className="cp-error">No pudimos consultar el código postal. Revísalo o dinos de dónde eres.</div>}{showCityForm && <div className="cp-outside"><strong>HeyChamba aún no está en tu ciudad.</strong><span>Dinos de dónde eres y nos ponemos en contacto contigo.</span><div className="city-autocomplete"><input value={city} onChange={event => { setCity(event.target.value); setCityOpen(true); }} onClick={() => setCityOpen(false)} onBlur={() => window.setTimeout(() => setCityOpen(false), 120)} placeholder="Escribe tu ciudad" autoComplete="off" role="combobox" aria-expanded={citySuggestions.length > 0}/>{citySuggestions.length > 0 && <div className="city-suggestions" role="listbox">{citySuggestions.map(suggestion => <Button key={suggestion} type="button" role="option" onClick={() => { setCity(suggestion); setCityOpen(false); }}><MapPin/><span>{suggestion}</span></Button>)}</div>}</div><Button disabled={city.trim().length < 2} onClick={() => { void guardarEspera({ data: { folio, ciudad: city.trim(), codigoPostal: cp } }).then(res => setFolio(res.folio)).catch(() => undefined); setWaiting(true); }} className="survey-next">Avísenme cuando lleguen</Button></div>}</div>}
+        {q.type === "cp" && <div className="cp-area" data-q-part><VoxelGlobe cp={cp}/><input autoFocus inputMode="numeric" maxLength={5} value={cp} onInput={event => { const nextCp = event.currentTarget.value.replace(/\D/g, ""); if (nextCp) started.current = true; setAnswers({ ...answers, cp: nextCp, col: "" }); checkPostalCode(nextCp); }} onChange={() => undefined} placeholder={q.placeholder}/>{postalState === "loading" && <div className="cp-lookup"><span/> Consultando código postal…</div>}{cpValid && <div className="cp-status"><MapPin/> {postal.city} · {cp}</div>}{postalState === "missing" && <div className="cp-error">No encontramos ese código postal. Revísalo o dinos de dónde eres.</div>}{postalState === "error" && <div className="cp-error">No pudimos consultar el código postal. Revísalo o dinos de dónde eres.</div>}{showCityForm && <div className="cp-outside">{cpOutside ? <><strong>HeyChamba aún no está en tu ciudad.</strong><span>Dinos de dónde eres y nos ponemos en contacto contigo.</span></> : <><strong>No pudimos verificar tu código postal.</strong><span>Revisa que esté bien escrito e inténtalo otra vez. Si sigue sin salir, dinos tu ciudad y te contactamos.</span><Button type="button" onClick={() => checkPostalCode(cp)} className="survey-reset">Intentar de nuevo</Button></>}<div className="city-autocomplete"><input value={city} onChange={event => { setCity(event.target.value); setCityOpen(true); }} onClick={() => setCityOpen(false)} onBlur={() => window.setTimeout(() => setCityOpen(false), 120)} placeholder="Escribe tu ciudad" autoComplete="off" role="combobox" aria-expanded={citySuggestions.length > 0}/>{citySuggestions.length > 0 && <div className="city-suggestions" role="listbox">{citySuggestions.map(suggestion => <Button key={suggestion} type="button" role="option" onClick={() => { setCity(suggestion); setCityOpen(false); }}><MapPin/><span>{suggestion}</span></Button>)}</div>}</div><Button disabled={city.trim().length < 2} onClick={() => { void guardarEspera({ data: { folio, ciudad: city.trim(), codigoPostal: cp } }).then(res => setFolio(res.folio)).catch(() => undefined); setWaiting(true); }} className="survey-next">{cpOutside ? "Avísenme cuando lleguen" : "Guardar mi ciudad y seguir después"}</Button></div>}</div>}
         {q.type === "text" && <>
           <input data-q-part autoFocus inputMode={q.key === "edad" ? "numeric" : "text"} maxLength={q.max} value={String(selected ?? "")} onChange={e => setAnswers({ ...answers, [q.key]: q.key === "curp" ? e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "") : e.target.value.replace(q.key === "edad" ? /\D/g : /$^/, "") })} placeholder={q.placeholder} className={`survey-input ${q.key === "curp" ? `curp-input is-${estadoCurp}` : ""}`}/>
           {/* La CURP son 18 caracteres exactos y nadie se los sabe de memoria:

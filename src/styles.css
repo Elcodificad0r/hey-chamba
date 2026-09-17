@@ -376,8 +376,8 @@ img {
 .checkin-resultado span{font-size:14px;color:oklch(.32 0 0)}
 .checkin-resultado.is-entrada{background:var(--lime)}
 .checkin-cotejar{margin:0;text-align:center;font-size:13px;font-weight:700;color:oklch(.45 0 0)}
-.checkin-resultado.is-repetido,.checkin-resultado.is-sin_confirmar{background:oklch(.88 .17 85)}
-.checkin-resultado.is-desconocido,.checkin-resultado.is-error{background:oklch(.72 .19 25)}
+.checkin-resultado.is-sin_confirmar{background:oklch(.88 .17 85)}
+.checkin-resultado.is-ya_usado,.checkin-resultado.is-desconocido,.checkin-resultado.is-error{background:oklch(.72 .19 25)}
 .checkin-nota{margin:0;text-align:center;font-size:13px;font-weight:700;color:var(--ink)}
 
 /* ─────────────────────────────────────────────────────────────

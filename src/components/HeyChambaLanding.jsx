@@ -48,6 +48,9 @@ export default function Landing({ showGrid = true, showFotos = true, showFormula
       const res = await guardarFase1({ data: { nombre: d.nombre || '', telefono: d.telefono || '', email: d.email || '' } });
       folio = res?.folio || '';
       d.folio = folio;
+      /* La clave viaja con la persona: es lo que la deja retomar su registro
+         desde el enlace del correo sin que baste con adivinar un folio. */
+      if (res?.claveSesion) d.k = res.claveSesion;
     } catch (err) {}
 
     try {

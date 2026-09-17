@@ -34,3 +34,6 @@ dist-ssr
 # Supabase CLI
 supabase/.temp
 supabase/.branches
+
+# Documentación interna: no se sube al repo.
+SUPABASE.md
