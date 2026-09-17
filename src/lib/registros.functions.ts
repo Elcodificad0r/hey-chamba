@@ -57,6 +57,20 @@ const esperaSchema = z.object({
    Nace una sola vez: si el registro ya tiene una, se respeta. */
 const nuevaClave = () => crypto.randomUUID().replace(/-/g, "");
 
+/* La CURP tal como la escribió la persona, o null si todavía no está completa.
+   Guardarla a medias rompería el índice único de la columna. */
+/* Postgres rechaza la CURP repetida con el código 23505 del índice único.
+   Lo traducimos a algo que la pantalla pueda mostrar. */
+const CURP_REPETIDA = "CURP_REPETIDA";
+function esCurpRepetida(error: { code?: string; message?: string }): boolean {
+  return error.code === "23505" && (error.message ?? "").includes("registros_curp_key");
+}
+
+function curpDeRespuestas(respuestas: Record<string, unknown>): string | null {
+  const valor = String(respuestas["curp"] ?? "").trim().toUpperCase();
+  return /^[A-Z]{4}\d{6}[HMX][A-Z]{5}[0-9A-Z]\d$/.test(valor) ? valor : null;
+}
+
 /* Fase 1: la persona deja sus datos en la landing y le nacen su folio y su clave. */
 export const guardarFase1 = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => fase1Schema.parse(data))
@@ -90,8 +104,12 @@ export const guardarPerfil = createServerFn({ method: "POST" })
       ? (await supabaseAdmin.from("registros").select("clave_sesion").eq("folio", data.folio).maybeSingle()).data?.clave_sesion
       : null;
     const claveSesion = previa ?? nuevaClave();
+    /* La CURP vive también en su propia columna: es lo que impide que
+       una misma persona saque dos pases. */
+    const curp = curpDeRespuestas(data.respuestas);
     const campos = {
       clave_sesion: claveSesion,
+      curp,
       email_confirmacion: data.emailConfirmacion || null,
       codigo_postal: data.codigoPostal,
       colonia: data.colonia,
@@ -108,7 +126,7 @@ export const guardarPerfil = createServerFn({ method: "POST" })
         .eq("folio", data.folio)
         .select("folio")
         .maybeSingle();
-      if (error) throw new Error(error.message);
+      if (error) throw new Error(esCurpRepetida(error) ? CURP_REPETIDA : error.message);
       if (fila?.folio) return { folio: fila.folio as string, claveSesion };
     }
     const { data: nueva, error: errorInsert } = await supabaseAdmin
@@ -116,7 +134,7 @@ export const guardarPerfil = createServerFn({ method: "POST" })
       .insert({ ...campos, email: data.emailConfirmacion || null })
       .select("folio")
       .single();
-    if (errorInsert) throw new Error(errorInsert.message);
+    if (errorInsert) throw new Error(esCurpRepetida(errorInsert) ? CURP_REPETIDA : errorInsert.message);
     return { folio: nueva.folio as string, claveSesion };
   });
 
@@ -161,8 +179,10 @@ export const guardarNoTerminado = createServerFn({ method: "POST" })
       ? (await supabaseAdmin.from("registros").select("clave_sesion").eq("folio", data.folio).maybeSingle()).data?.clave_sesion
       : null;
     const claveSesion = previa ?? nuevaClave();
+    const curp = curpDeRespuestas(data.respuestas);
     const campos = {
       clave_sesion: claveSesion,
+      curp,
       estatus: "no_terminado",
       no_terminado: true,
       preguntas_respondidas: data.preguntasRespondidas,
@@ -390,4 +410,96 @@ export const enviarRecordatorio = createServerFn({ method: "POST" })
       motivo: null,
       enlace: correoConfigurado() ? null : enlace,
     };
+  });
+
+/* ─────────────────────────────────────────────────────────────
+   UNA PERSONA, UN PASE
+   La CURP es única. En cuanto alguien la teclea completa le avisamos
+   si ya tiene registro, para que no conteste 15 preguntas de más y
+   luego se estrelle al final.
+   ───────────────────────────────────────────────────────────── */
+
+const curpSchema = z.string().trim().toUpperCase().length(18)
+  .regex(/^[A-Z]{4}\d{6}[HMX][A-Z]{5}[0-9A-Z]\d$/, "CURP mal formada.");
+
+/* ¿Esa CURP ya tiene dueño? Se llama en cuanto se completan los 18.
+   `folio` es el del registro en curso: uno no choca consigo mismo. */
+export const revisarCurp = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) => z.object({
+    curp: curpSchema,
+    folio: z.string().trim().max(40).optional().default(""),
+  }).parse(data))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: fila, error } = await supabaseAdmin
+      .from("registros")
+      .select("folio, nombre, qr_emitido, estatus")
+      .eq("curp", data.curp)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!fila || fila.folio === data.folio) return { libre: true as const };
+
+    /* Tres estados, los mismos que decide `reenviarPorCurp`, para que el
+       aviso en pantalla y el correo que sale digan lo mismo:
+         con_pase      → ya confirmó, tiene su QR
+         sin_confirmar → llenó todo, le falta abrir el enlace del correo
+         a_medias      → se salió antes de terminar las preguntas */
+    return {
+      libre: false as const,
+      nombre: (fila.nombre ?? "") as string,
+      estado: fila.qr_emitido ? ("con_pase" as const)
+        : fila.estatus === "completo" ? ("sin_confirmar" as const)
+        : ("a_medias" as const),
+    };
+  });
+
+/* "Perdí el correo": le reenviamos al correo que ya tenemos guardado lo que
+   le toque según su avance. Nunca decimos cuál es ese correo, solo que salió. */
+export const reenviarPorCurp = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) => z.object({ curp: curpSchema }).parse(data))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { enviarCorreo, plantillaConfirmacion, plantillaPase, plantillaRecordatorio, urlDelSitio } = await import("@/lib/correo.server");
+
+    const { data: fila, error } = await supabaseAdmin
+      .from("registros")
+      .select("folio, nombre, email, email_confirmacion, estatus, correo_confirmado, qr_token, clave_sesion, confirmacion_intentos")
+      .eq("curp", data.curp)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!fila) return { enviado: false, tipo: null };
+
+    const destino = (fila.email_confirmacion ?? fila.email ?? "") as string;
+    if (!destino) return { enviado: false, tipo: "sin_correo" as const };
+    const nombre = (fila.nombre ?? "") as string;
+
+    /* Ya confirmó: le mandamos su pase. */
+    if (fila.correo_confirmado && fila.qr_token) {
+      const mensaje = plantillaPase(nombre, `${urlDelSitio()}/pase?p=${encodeURIComponent(fila.qr_token)}`);
+      const res = await enviarCorreo({ para: destino, asunto: mensaje.asunto, html: mensaje.html, texto: mensaje.texto });
+      return { enviado: res.enviado, tipo: "pase" as const };
+    }
+
+    /* Terminó pero no confirmó: token nuevo y otra vez el enlace de confirmación. */
+    if (fila.estatus === "completo") {
+      const token = crypto.randomUUID();
+      const { error: errorToken } = await supabaseAdmin
+        .from("registros")
+        .update({
+          token_confirmacion: token,
+          confirmacion_enviada_en: new Date().toISOString(),
+          confirmacion_intentos: (fila.confirmacion_intentos ?? 0) + 1,
+        })
+        .eq("folio", fila.folio);
+      if (errorToken) throw new Error(errorToken.message);
+      const mensaje = plantillaConfirmacion(nombre, `${urlDelSitio()}/confirmar?token=${encodeURIComponent(token)}`);
+      const res = await enviarCorreo({ para: destino, asunto: mensaje.asunto, html: mensaje.html, texto: mensaje.texto });
+      return { enviado: res.enviado, tipo: "confirmacion" as const };
+    }
+
+    /* Se quedó a medias: el enlace que lo regresa donde iba. */
+    const enlace = `${urlDelSitio()}/registro?folio=${encodeURIComponent(fila.folio)}&k=${encodeURIComponent(fila.clave_sesion ?? "")}`;
+    const mensaje = plantillaRecordatorio(nombre, enlace);
+    const res = await enviarCorreo({ para: destino, asunto: mensaje.asunto, html: mensaje.html, texto: mensaje.texto });
+    return { enviado: res.enviado, tipo: "retomar" as const };
   });

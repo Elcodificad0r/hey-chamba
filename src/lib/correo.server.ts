@@ -97,3 +97,16 @@ export function plantillaRecordatorio(nombre: string, enlace: string) {
     texto: `${saludo}te faltan poquitas preguntas para terminar tu perfil: ${enlace}`,
   };
 }
+
+/* Para quien ya confirmó y perdió el correo: aquí está tu pase otra vez. */
+export function plantillaPase(nombre: string, enlace: string) {
+  const saludo = nombre ? `${nombre.split(" ")[0]}, ` : "";
+  return {
+    asunto: "Aquí está tu pase — HeyChamba",
+    html: marco("Tu pase HeyChamba", `
+      <p style="font-size:16px;line-height:1.5;margin:0 0 20px">${saludo}ya tenías tu lugar apartado. Abre esta liga y ahí está tu QR: es tu pase para el festival, y con él tomamos tu asistencia.</p>
+      <p style="margin:0 0 20px">${boton(enlace, "Ver mi pase")}</p>
+      <p style="font-size:13px;color:#555;line-height:1.5;margin:0">Si el botón no abre, copia esta liga:<br><span style="word-break:break-all">${enlace}</span></p>`),
+    texto: `${saludo}aquí está tu pase: ${enlace}`,
+  };
+}

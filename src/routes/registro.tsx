@@ -8,7 +8,7 @@ import { heychambaColonias } from "@/lib/heychamba-colonias";
 import { loadVoxelGlobe } from "@/lib/globe-loader";
 import globePoster from "@/assets/globe-poster.png";
 import { HeyChambaMenu } from "@/components/HeyChambaMenu";
-import { enviarConfirmacion, estadoConfirmacion, guardarEspera, guardarNoTerminado, guardarPerfil, retomarRegistro } from "@/lib/registros.functions";
+import { enviarConfirmacion, estadoConfirmacion, reenviarPorCurp, revisarCurp, guardarEspera, guardarNoTerminado, guardarPerfil, retomarRegistro } from "@/lib/registros.functions";
 import { PaseQR } from "@/components/PaseQR";
 
 export const Route = createFileRoute("/registro")({
@@ -253,6 +253,11 @@ function Registro() {
   const [cityOpen, setCityOpen] = useState(true); // sugerencias de ciudad visibles
   const [leaveOpen, setLeaveOpen] = useState(false); // aviso de "¿segura que quieres salir?"
   const [minorAge, setMinorAge] = useState<number | null>(null); // es menor de edad: sale la disculpa
+  /* Una persona, un pase: si la CURP ya tiene dueño, avisamos aquí mismo
+     en vez de dejarla contestar 15 preguntas más para nada. */
+  const [curpTomada, setCurpTomada] = useState<{ nombre: string; estado: "con_pase" | "sin_confirmar" | "a_medias" } | null>(null);
+  const [reenviando, setReenviando] = useState(false);
+  const [reenviado, setReenviado] = useState("");
   const panel = useRef<HTMLDivElement>(null);
   const pendingLeave = useRef<(() => void) | null>(null); // a dónde quería ir la persona
   const allowLeave = useRef(false);               // ya confirmó salir, deja pasar
@@ -398,6 +403,26 @@ function Registro() {
   useEffect(() => {
     if (q.key === "curp" && edadCurp !== null && edadCurp < 18) setMinorAge(edadCurp);
   }, [edadCurp, q.key]);
+
+  /* Y en cuanto está bien formada, preguntamos si ya tiene dueño. */
+  const curpRevisada = useRef("");
+  useEffect(() => {
+    if (estadoCurp !== "bien" || curpRevisada.current === curpEscrita) return;
+    curpRevisada.current = curpEscrita;
+    void revisarCurp({ data: { curp: curpEscrita, folio } })
+      .then(res => { if (!res.libre) setCurpTomada({ nombre: res.nombre, estado: res.estado }); })
+      .catch(() => undefined);
+  }, [estadoCurp, curpEscrita, folio]);
+
+  const reenviarMiEnlace = () => {
+    setReenviando(true);
+    void reenviarPorCurp({ data: { curp: curpEscrita } })
+      .then(res => setReenviado(res.enviado
+        ? "Listo, ya salió. Revisa tu correo (y la carpeta de spam)."
+        : "No pudimos mandarlo. Escríbenos a contacto@heychamba.com."))
+      .catch(() => setReenviado("No pudimos mandarlo. Escríbenos a contacto@heychamba.com."))
+      .finally(() => setReenviando(false));
+  };
   const finishOrGo = () => {
     if (q.key === "edad" && edadEscrita > 0 && edadEscrita < 18) { setMinorAge(edadEscrita); return; }
     if (q.key === "curp" && edadCurp !== null && edadCurp < 18) { setMinorAge(edadCurp); return; }
@@ -511,6 +536,25 @@ function Registro() {
         <h2 id="minor-dialog-title">Todavía no podemos darte chamba</h2>
         <p id="minor-dialog-copy">Vimos que tienes {minorAge} años y en México la ley no permite contratar a menores de edad para este tipo de trabajo. No es que no te queramos: es que todavía no se puede. En cuanto cumplas 18 vuelve por aquí, que tu lugar te lo guardamos.</p>
         <div><Button onClick={() => { setMinorAge(null); allowLeave.current = true; void navigate({ to: "/" }); }} className="leave-stay">Volver al inicio</Button><Button onClick={() => { setMinorAge(null); setAnswers({ ...answers, edad: "", curp: "" }); }} className="leave-exit">Corregir mi dato</Button></div>
+      </div>
+    </div>}
+    {curpTomada && <div className="leave-dialog-backdrop" role="presentation">
+      <div className="leave-dialog" role="alertdialog" aria-modal="true" aria-labelledby="curp-dialog-title" aria-describedby="curp-dialog-copy">
+        <img src={icons.alien} alt="" className="hc-float"/>
+        <span>Ya nos conocemos</span>
+        <h2 id="curp-dialog-title">{curpTomada.nombre ? `${curpTomada.nombre.split(" ")[0]}, ya tienes registro` : "Ya tienes registro"}</h2>
+        <p id="curp-dialog-copy">{
+          curpTomada.estado === "con_pase"
+            ? "Con esa CURP ya hay un pase generado. Busca en tu correo el mensaje de HeyChamba: ahí está tu QR. Si no lo encuentras, te lo reenviamos."
+          : curpTomada.estado === "sin_confirmar"
+            ? "Con esa CURP ya llenaste tu registro; solo falta que confirmes tu correo para liberar tu QR. Busca el enlace que te mandamos, o te lo reenviamos."
+            : "Con esa CURP ya empezaste tu registro. Busca en tu correo el enlace para seguirle donde te quedaste. Si no lo encuentras, te lo reenviamos."
+        }</p>
+        {reenviado && <span className="survey-help">{reenviado}</span>}
+        <div>
+          {!reenviado && <Button onClick={reenviarMiEnlace} disabled={reenviando} className="leave-stay">{reenviando ? "Mandando…" : "Reenviar mi enlace"}</Button>}
+          <Button onClick={() => { setCurpTomada(null); setReenviado(""); curpRevisada.current = ""; setAnswers({ ...answers, curp: "" }); }} className="leave-exit">No es mi CURP, corregirla</Button>
+        </div>
       </div>
     </div>}
     <header className="survey-header">

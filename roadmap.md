@@ -10,6 +10,8 @@
       `/registro?folio=...&k=...` que regresa a la persona donde se quedó.
 - [x] El enlace de retomar lleva llave: `retomarRegistro` ya no entrega nada con el folio solo.
       La clave nace en la fase 1 y no cambia, para que los enlaces ya enviados sigan sirviendo.
+- [x] Una persona, un pase: la CURP es única. Si ya tiene registro, se avisa en la
+      pregunta 3 y se le reenvía su enlace (pase, confirmación o retomar, según su avance).
 - [ ] Disparar el recordatorio solo: falta el trabajo programado que recorra los
       `estatus = 'no_terminado'` y llame a `enviarRecordatorio`.
 - [x] El correo de confirmación sale solo al terminar el registro.

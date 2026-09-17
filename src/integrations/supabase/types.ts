@@ -57,6 +57,7 @@ export type Database = {
           correo_confirmado: boolean
           correo_confirmado_en: string | null
           created_at: string
+          curp: string | null
           email: string | null
           email_confirmacion: string | null
           estado: string | null
@@ -85,6 +86,7 @@ export type Database = {
           correo_confirmado?: boolean
           correo_confirmado_en?: string | null
           created_at?: string
+          curp?: string | null
           email?: string | null
           email_confirmacion?: string | null
           estado?: string | null
@@ -113,6 +115,7 @@ export type Database = {
           correo_confirmado?: boolean
           correo_confirmado_en?: string | null
           created_at?: string
+          curp?: string | null
           email?: string | null
           email_confirmacion?: string | null
           estado?: string | null
