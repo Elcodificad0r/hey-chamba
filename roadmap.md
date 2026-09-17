@@ -9,5 +9,11 @@
 - [ ] Enviar el correo recordatorio "No te quedes sin chamba, termina tu perfil" con ese enlace.
       La plantilla ya está en `src/lib/correo.server.ts`; falta configurar el dominio de correo
       (RESEND_API_KEY y CORREO_REMITENTE) y el trabajo que lo dispara.
-- [ ] Usar el QR para el acceso al festival virtual / tomar asistencia: el pase vive en `/pase?folio=...`
+- [x] El correo de confirmación sale solo al terminar el registro.
+- [x] QR seguro: el token del pase nace al confirmar el correo y el QR apunta a `/pase?p=<token>`.
+      Adivinar el folio ya no sirve de nada.
+- [x] Botón para llevarse el QR (PNG, y "Guardar en Fotos" en iPhone).
+- [ ] Usar el QR para el acceso al festival virtual / tomar asistencia: el pase vive en `/pase?p=...`
       y ya sabe si la persona confirmó; falta la parte de marcar la asistencia.
+- [ ] Pase en Apple Wallet (.pkpass): necesita una cuenta de Apple Developer y un
+      certificado Pass Type ID. Sin eso no se puede firmar el pase.

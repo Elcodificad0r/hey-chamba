@@ -316,3 +316,26 @@
   border-radius: 999px; font-family: var(--font-body); font-size: 14px; text-align: center;
 }
 .resume-toast svg { width: 16px; height: 16px; flex: none; }
+
+/* El QR del pase y sus botones para llevárselo. */
+.qr-pase{display:flex;flex-direction:column;align-items:center;gap:14px}
+.qr-acciones{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+.qr-accion{min-height:46px;padding:10px 20px;display:inline-flex;align-items:center;gap:8px;color:var(--ink);background:var(--lime);border:2px solid var(--ink);border-radius:999px;box-shadow:4px 4px 0 var(--ink);font-weight:800;font-size:15px}
+.qr-accion svg{width:18px;height:18px}
+.qr-accion-suave{background:var(--background)}
+
+/* ─────────────────────────────────────────────────────────────
+   IMÁGENES: estorbar el guardado casual
+   Quita el arrastrar-y-soltar, la selección y el menú de
+   "Guardar imagen" que sale al dejar el dedo apretado en iPhone.
+   Ojo: esto NO hace que las imágenes sean indescargables. Cualquiera
+   puede tomar captura o sacarlas desde las herramientas del navegador.
+   Solo sube el escalón para el que pasa y de pasada las jala.
+   El <canvas> del QR queda fuera a propósito: ese sí se descarga
+   con su botón, y lo que lo protege está en el servidor.
+   ───────────────────────────────────────────────────────────── */
+img {
+  -webkit-user-drag: none;
+  -webkit-touch-callout: none;
+  user-select: none;
+}

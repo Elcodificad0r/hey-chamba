@@ -2,10 +2,10 @@
   "version": 1,
   "asset_id": "64711169-8a43-4dc2-8515-ea9af8e67395",
   "project_id": "52bd3c28-48c7-4f1c-ab9d-abf7746bf0af",
-  "url": "/__l5e/assets-v1/64711169-8a43-4dc2-8515-ea9af8e67395/ico-rock.png",
-  "r2_key": "a/v1/52bd3c28-48c7-4f1c-ab9d-abf7746bf0af/64711169-8a43-4dc2-8515-ea9af8e67395/ico-rock.png",
-  "original_filename": "ico-rock.png",
-  "size": 88149,
-  "content_type": "image/png",
+  "url": "/__l5e/assets-v1/64711169-8a43-4dc2-8515-ea9af8e67395/ico-rock.webp",
+  "r2_key": "a/v1/52bd3c28-48c7-4f1c-ab9d-abf7746bf0af/64711169-8a43-4dc2-8515-ea9af8e67395/ico-rock.webp",
+  "original_filename": "ico-rock.webp",
+  "size": 34732,
+  "content_type": "image/webp",
   "created_at": "2026-09-11T22:48:17Z"
 }

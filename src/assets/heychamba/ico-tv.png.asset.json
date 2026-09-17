@@ -2,10 +2,10 @@
   "version": 1,
   "asset_id": "cdaa9c1a-ad65-44be-8214-2f0f41892ac3",
   "project_id": "52bd3c28-48c7-4f1c-ab9d-abf7746bf0af",
-  "url": "/__l5e/assets-v1/cdaa9c1a-ad65-44be-8214-2f0f41892ac3/ico-tv.png",
-  "r2_key": "a/v1/52bd3c28-48c7-4f1c-ab9d-abf7746bf0af/cdaa9c1a-ad65-44be-8214-2f0f41892ac3/ico-tv.png",
-  "original_filename": "ico-tv.png",
-  "size": 3767297,
-  "content_type": "image/png",
+  "url": "/__l5e/assets-v1/cdaa9c1a-ad65-44be-8214-2f0f41892ac3/ico-tv.webp",
+  "r2_key": "a/v1/52bd3c28-48c7-4f1c-ab9d-abf7746bf0af/cdaa9c1a-ad65-44be-8214-2f0f41892ac3/ico-tv.webp",
+  "original_filename": "ico-tv.webp",
+  "size": 24460,
+  "content_type": "image/webp",
   "created_at": "2026-09-11T22:48:20Z"
 }

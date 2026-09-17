@@ -2,10 +2,10 @@
   "version": 1,
   "asset_id": "541c6873-97d5-43c1-b36d-620e4f75cafd",
   "project_id": "52bd3c28-48c7-4f1c-ab9d-abf7746bf0af",
-  "url": "/__l5e/assets-v1/541c6873-97d5-43c1-b36d-620e4f75cafd/ico-alien.png",
-  "r2_key": "a/v1/52bd3c28-48c7-4f1c-ab9d-abf7746bf0af/541c6873-97d5-43c1-b36d-620e4f75cafd/ico-alien.png",
-  "original_filename": "ico-alien.png",
-  "size": 53562,
-  "content_type": "image/png",
+  "url": "/__l5e/assets-v1/541c6873-97d5-43c1-b36d-620e4f75cafd/ico-alien.webp",
+  "r2_key": "a/v1/52bd3c28-48c7-4f1c-ab9d-abf7746bf0af/541c6873-97d5-43c1-b36d-620e4f75cafd/ico-alien.webp",
+  "original_filename": "ico-alien.webp",
+  "size": 25660,
+  "content_type": "image/webp",
   "created_at": "2026-09-11T22:47:40Z"
 }

@@ -17,6 +17,7 @@ export type Database = {
       registros: {
         Row: {
           ciudad: string | null
+          clave_sesion: string | null
           codigo_postal: string | null
           colonia: string | null
           confirmacion_enviada_en: string | null
@@ -36,6 +37,7 @@ export type Database = {
           preguntas_respondidas: number
           qr_emitido: boolean
           qr_emitido_en: string | null
+          qr_token: string | null
           respuestas: Json
           telefono: string | null
           token_confirmacion: string | null
@@ -43,6 +45,7 @@ export type Database = {
         }
         Insert: {
           ciudad?: string | null
+          clave_sesion?: string | null
           codigo_postal?: string | null
           colonia?: string | null
           confirmacion_enviada_en?: string | null
@@ -62,6 +65,7 @@ export type Database = {
           preguntas_respondidas?: number
           qr_emitido?: boolean
           qr_emitido_en?: string | null
+          qr_token?: string | null
           respuestas?: Json
           telefono?: string | null
           token_confirmacion?: string | null
@@ -69,6 +73,7 @@ export type Database = {
         }
         Update: {
           ciudad?: string | null
+          clave_sesion?: string | null
           codigo_postal?: string | null
           colonia?: string | null
           confirmacion_enviada_en?: string | null
@@ -88,6 +93,7 @@ export type Database = {
           preguntas_respondidas?: number
           qr_emitido?: boolean
           qr_emitido_en?: string | null
+          qr_token?: string | null
           respuestas?: Json
           telefono?: string | null
           token_confirmacion?: string | null

@@ -2,10 +2,9 @@
    Aquí se da por confirmado el correo y, con eso, nace su QR real. */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Check, Globe, Mail } from "lucide-react";
-import { QRCodeCanvas } from "qrcode.react";
+import { Globe, Mail } from "lucide-react";
 import { confirmarCorreo } from "@/lib/registros.functions";
-import { valorQR } from "@/lib/pase";
+import { PaseQR } from "@/components/PaseQR";
 import { formArt } from "@/lib/heychamba-assets";
 
 export const Route = createFileRoute("/confirmar")({
@@ -25,7 +24,7 @@ type Estado = "verificando" | "listo" | "invalido" | "error";
 function Confirmar() {
   const { token } = Route.useSearch();
   const [estado, setEstado] = useState<Estado>(token ? "verificando" : "invalido");
-  const [registro, setRegistro] = useState<{ folio: string; nombre: string; email: string } | null>(null);
+  const [registro, setRegistro] = useState<{ nombre: string; email: string; qrToken: string } | null>(null);
   const yaCorrio = useRef(false);
 
   useEffect(() => {
@@ -53,22 +52,14 @@ function Confirmar() {
 
         {estado === "listo" && registro && <>
           <h1>{registro.nombre ? `${registro.nombre.split(" ")[0]}, ¡correo confirmado!` : "¡Correo confirmado!"}</h1>
-          <p>Este es tu QR. Es tu pase: con él entras al festival y con él tomamos tu asistencia. Guárdalo o toma captura.</p>
-          <div className="qr-live">
-            <QRCodeCanvas value={valorQR(registro.folio)} size={176} level="M" marginSize={2} bgColor="#ffffff" fgColor="#111111"/>
-            <span><Check/> Tu pase está listo</span>
-          </div>
-          <div className="folio-card">
-            <span>Tu ID de registro</span>
-            <strong>{registro.folio}</strong>
-            <small>Con este ID te identificamos en HeyChamba. Guárdalo.</small>
-          </div>
+          <p>Este es tu QR. Es tu pase: con él entras al festival y con él tomamos tu asistencia. Guárdalo en tu celular.</p>
+          <PaseQR qrToken={registro.qrToken} nombre={registro.nombre}/>
           {registro.email && <div className="verify-mail"><Mail/><div><strong>Correo confirmado</strong><span>{registro.email}</span></div></div>}
         </>}
 
         {estado === "invalido" && <>
           <h1>Ese enlace ya no sirve</h1>
-          <p>Puede que lo hayas usado antes o que sea de otro registro. Vuelve a tu registro y pide que te mandemos el correo otra vez.</p>
+          <p>Puede que sea de otro registro o que ya haya caducado. Vuelve a tu registro y pide que te mandemos el correo otra vez.</p>
         </>}
 
         {estado === "error" && <>

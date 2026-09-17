@@ -84,13 +84,21 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:description", content: "Encuentra oportunidades de trabajo cerca de ti." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "theme-color", content: "#C4E539" },
     ],
     links: [
       {
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      /* El .ico trae 16/32/48 px para las pestañas; el resto es para
+         iPhone (pantalla de inicio) y Android. Sin la versión cuadrada
+         los navegadores ignoraban el ícono y ponían el suyo. */
+      { rel: "icon", href: "/favicon.ico", sizes: "any" },
+      { rel: "icon", href: "/favicon-32.png", type: "image/png", sizes: "32x32" },
+      { rel: "icon", href: "/favicon-96.png", type: "image/png", sizes: "96x96" },
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png", sizes: "180x180" },
+      { rel: "manifest", href: "/site.webmanifest" },
     ],
   }),
   shellComponent: RootShell,
@@ -115,6 +123,18 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+
+  /* Tapamos el clic derecho sobre las imágenes ("Guardar imagen como…").
+     Es un estorbo, no un candado: quien quiera bajarlas puede tomar
+     captura o abrir la pestaña de red. El canvas del QR se deja en paz
+     porque ahí sí queremos que la persona se lleve su pase. */
+  useEffect(() => {
+    const bloquearMenu = (evento: MouseEvent) => {
+      if (evento.target instanceof HTMLImageElement) evento.preventDefault();
+    };
+    document.addEventListener("contextmenu", bloquearMenu);
+    return () => document.removeEventListener("contextmenu", bloquearMenu);
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
