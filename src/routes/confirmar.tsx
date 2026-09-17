@@ -6,13 +6,15 @@ import { Globe, Mail } from "lucide-react";
 import { confirmarCorreo } from "@/lib/registros.functions";
 import { PaseQR } from "@/components/PaseQR";
 import { formArt } from "@/lib/heychamba-assets";
+import { meta } from "@/lib/seo";
 
 export const Route = createFileRoute("/confirmar")({
-  head: () => ({ meta: [
-    { title: "Confirma tu correo — HeyChamba" },
-    { name: "description", content: "Confirma tu correo y recibe tu QR de HeyChamba." },
-    { name: "robots", content: "noindex" },
-  ]}),
+  head: () => meta({
+    titulo: "Confirma tu correo — HeyChamba",
+    descripcion: "Confirma tu correo y recibe tu pase QR de HeyChamba.",
+    ruta: "/confirmar",
+    privada: true,
+  }),
   component: Confirmar,
   validateSearch: (search: { token?: string }) => ({
     token: typeof search.token === "string" ? search.token : "",

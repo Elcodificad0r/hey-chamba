@@ -10,16 +10,14 @@ import globePoster from "@/assets/globe-poster.png";
 import { HeyChambaMenu } from "@/components/HeyChambaMenu";
 import { enviarConfirmacion, estadoConfirmacion, reenviarPorCurp, revisarCurp, guardarEspera, guardarNoTerminado, guardarPerfil, retomarRegistro } from "@/lib/registros.functions";
 import { PaseQR } from "@/components/PaseQR";
+import { meta } from "@/lib/seo";
 
 export const Route = createFileRoute("/registro")({
-  head: () => ({ meta: [
-    { title: "Registro de talento — HeyChamba" },
-    { name: "description", content: "Completa tu perfil HeyChamba para encontrar trabajo de temporada cerca de casa." },
-    { property: "og:title", content: "Registro de talento — HeyChamba" },
-    { property: "og:description", content: "Completa las fases de tu perfil para participar en HeyChamba." },
-    { property: "og:type", content: "website" },
-    { name: "twitter:card", content: "summary_large_image" },
-  ]}),
+  head: () => meta({
+    titulo: "Regístrate — HeyChamba",
+    descripcion: "Completa tu perfil HeyChamba en unos minutos y recibe tu pase al festival de empleo. Sin CV: te preguntamos tu zona, tu disponibilidad y tu experiencia.",
+    ruta: "/registro",
+  }),
   component: Registro,
   /* Los datos de la fase 1 llegan por la URL desde la landing (nombre, teléfono, correo y folio). */
   validateSearch: (search: { folio?: string; k?: string; nombre?: string; telefono?: string; email?: string }) => ({

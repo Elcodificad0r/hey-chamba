@@ -7,12 +7,15 @@ import { Check, LockKeyhole, TriangleAlert, UserRound, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { registrarAsistencia, resumenAsistencia, revisarAccesoStaff } from "@/lib/asistencia.functions";
 import { iniciarLector, sonar, tokenDesdeQR, type Lector } from "@/lib/lector-qr";
+import { meta } from "@/lib/seo";
 
 export const Route = createFileRoute("/checkin")({
-  head: () => ({ meta: [
-    { title: "Asistencia — HeyChamba" },
-    { name: "robots", content: "noindex, nofollow" },
-  ]}),
+  head: () => meta({
+    titulo: "Asistencia — HeyChamba",
+    descripcion: "Pantalla del equipo para tomar asistencia en el festival.",
+    ruta: "/checkin",
+    privada: true,
+  }),
   component: CheckIn,
 });
 

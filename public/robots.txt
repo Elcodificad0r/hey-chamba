@@ -1,14 +1,11 @@
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
-
+# Las páginas públicas se pueden rastrear.
 User-agent: *
 Allow: /
+
+# Las pantallas privadas, no: son de cada persona o del equipo.
+Disallow: /pase
+Disallow: /confirmar
+Disallow: /checkin
+Disallow: /api/
+
+Sitemap: https://www.heychamba.com/sitemap.xml

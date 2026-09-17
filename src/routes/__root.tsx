@@ -77,14 +77,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "HeyChamba" },
-      { name: "description", content: "Encuentra oportunidades de trabajo cerca de ti." },
       { name: "author", content: "HeyChamba" },
-      { property: "og:title", content: "HeyChamba" },
-      { property: "og:description", content: "Encuentra oportunidades de trabajo cerca de ti." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
       { name: "theme-color", content: "#C4E539" },
+      /* El título, la descripción, las og: y la canónica las pone cada
+         ruta con `meta()` de src/lib/seo.ts. Aquí solo va lo que no cambia. */
     ],
     links: [
       {

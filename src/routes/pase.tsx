@@ -6,13 +6,15 @@ import { Globe } from "lucide-react";
 import { consultarPase } from "@/lib/registros.functions";
 import { PaseQR } from "@/components/PaseQR";
 import { formArt } from "@/lib/heychamba-assets";
+import { meta } from "@/lib/seo";
 
 export const Route = createFileRoute("/pase")({
-  head: () => ({ meta: [
-    { title: "Tu pase — HeyChamba" },
-    { name: "description", content: "Tu pase HeyChamba con tu QR de acceso." },
-    { name: "robots", content: "noindex" },
-  ]}),
+  head: () => meta({
+    titulo: "Tu pase — HeyChamba",
+    descripcion: "Tu pase HeyChamba con tu QR de acceso al festival.",
+    ruta: "/pase",
+    privada: true,
+  }),
   component: Pase,
   validateSearch: (search: { p?: string }) => ({
     p: typeof search.p === "string" ? search.p : "",
