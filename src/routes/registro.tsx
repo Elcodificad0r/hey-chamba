@@ -9,7 +9,8 @@ import { loadVoxelGlobe } from "@/lib/globe-loader";
 import globePoster from "@/assets/globe-poster.png";
 import { HeyChambaMenu } from "@/components/HeyChambaMenu";
 import { QRCodeCanvas } from "qrcode.react";
-import { guardarEspera, guardarNoTerminado, guardarPerfil, retomarRegistro } from "@/lib/registros.functions";
+import { enviarConfirmacion, estadoConfirmacion, guardarEspera, guardarNoTerminado, guardarPerfil, retomarRegistro } from "@/lib/registros.functions";
+import { valorQR } from "@/lib/pase";
 
 export const Route = createFileRoute("/registro")({
   head: () => ({ meta: [
@@ -231,6 +232,12 @@ function Registro() {
   const [saving, setSaving] = useState(false);     // guardando en la base
   const [saved, setSaved] = useState(false);       // ya quedó guardado
   const [saveError, setSaveError] = useState("");  // si algo falló al guardar
+  /* La confirmación del correo va por su cuenta, aparte del guardado. */
+  const [confirmado, setConfirmado] = useState(false); // ya abrió el enlace del correo
+  const [enviando, setEnviando] = useState(false);     // mandando el correo
+  const [enviado, setEnviado] = useState(false);       // el correo ya salió
+  const [errorEnvio, setErrorEnvio] = useState("");    // si el correo no salió
+  const [enlacePrueba, setEnlacePrueba] = useState(""); // mientras no hay dominio de correo
   const [index, setIndex] = useState(0);          // pregunta actual (0 = la primera)
   const [menuOpen, setMenuOpen] = useState(false); // menú de hamburguesa abierto
   const [answers, setAnswers] = useState<Record<string, string | string[] | number>>({ emp: 1 }); // respuestas por key
@@ -282,8 +289,9 @@ function Registro() {
     withResolver: true,
     enableBeforeUnload: hasStarted && !done && !waiting,
   });
-  const q = questions[index];                    // la pregunta que se está viendo
-  if (!q) return null;
+  // La pregunta que se está viendo. El índice siempre cae dentro de la lista,
+  // así que aquí nunca hay un hueco (y los hooks de abajo nunca quedan a medias).
+  const q = questions[Math.min(Math.max(index, 0), questions.length - 1)] as Question;
   const phase3 = q.phase === 3;
   const selected = answers[q.key];               // respuesta guardada de esta pregunta
   const cp = String(answers["cp"] ?? "");
@@ -400,13 +408,15 @@ function Registro() {
   const progress3 = done || waiting ? 100 : index < 12 ? 0 : Math.min(100, (index - 12) / 9 * 100);
   const theme = phase3 || done ? "survey-violet" : "survey-lime"; // fase 3 se pone violeta
 
-  /* Último paso: se guarda todo el perfil pegado al folio de la fase 1. */
-  const guardarRegistroFinal = () => {
+  /* GUARDAR EL PERFIL
+     Pasa solo, en cuanto la persona contesta la última pregunta.
+     No espera a la confirmación del correo: son dos cosas distintas. */
+  const guardarRegistroFinal = useCallback(() => {
     setSaving(true);
     setSaveError("");
     void guardarPerfil({ data: {
       folio,
-      emailConfirmacion: confirmEmail.trim(),
+      emailConfirmacion: (confirmEmail || contacto.email).trim(),
       codigoPostal: cp,
       colonia: String(answers["col"] ?? ""),
       ciudad: postal?.city ?? city.trim(),
@@ -416,7 +426,43 @@ function Registro() {
       .then(res => { setFolio(res.folio); setSaved(true); })
       .catch(() => setSaveError("No pudimos guardar tu registro. Inténtalo otra vez."))
       .finally(() => setSaving(false));
+  }, [folio, confirmEmail, contacto, cp, answers, postal, city]);
+
+  /* Apenas termina las preguntas, el registro se va a la base. */
+  const yaGuardamos = useRef(false);
+  useEffect(() => {
+    if (!done || yaGuardamos.current) return;
+    yaGuardamos.current = true;
+    guardarRegistroFinal();
+  }, [done, guardarRegistroFinal]);
+
+  /* CONFIRMAR EL CORREO (aparte)
+     Le mandamos el enlace; cuando lo abre, se le libera el QR. */
+  const enviarMiConfirmacion = () => {
+    setEnviando(true);
+    setErrorEnvio("");
+    void enviarConfirmacion({ data: { folio, email: confirmEmail.trim() } })
+      .then(res => {
+        if (res.yaConfirmado) { setConfirmado(true); return; }
+        setEnviado(true);
+        if (res.enlace) setEnlacePrueba(res.enlace);
+        if (!res.enviado && !res.enlace) setErrorEnvio("No pudimos mandar el correo. Inténtalo otra vez.");
+      })
+      .catch(() => setErrorEnvio("No pudimos mandar el correo. Inténtalo otra vez."))
+      .finally(() => setEnviando(false));
   };
+
+  /* Mientras espera, preguntamos cada rato si ya abrió el enlace,
+     para desbloquear el QR en cuanto lo haga. */
+  useEffect(() => {
+    if (!done || !saved || confirmado || !folio) return;
+    const timer = window.setInterval(() => {
+      void estadoConfirmacion({ data: { folio } })
+        .then(res => { if (res?.correoConfirmado) setConfirmado(true); })
+        .catch(() => undefined);
+    }, 4000);
+    return () => window.clearInterval(timer);
+  }, [done, saved, confirmado, folio]);
 
   return <main className={`survey-original ${waiting ? "survey-lime" : theme}`}>
     <div className="survey-grid" aria-hidden="true" />
@@ -459,19 +505,27 @@ function Registro() {
         <div className="finish-icons"><img src={formArt.finishA} alt=""/><img src={formArt.finishB} alt=""/><img src={formArt.finishC} alt=""/></div>
         <h1>{contacto.nombre ? `${contacto.nombre.split(" ")[0]}, tu perfil está listo.` : "Tu perfil está listo."}</h1><p>Nos vemos el 15 de septiembre. Ya nada más falta confirmar tu correo.</p>
         {/* El QR nace apenas se confirma el correo; antes se ve bloqueado. */}
-        {saved
-          ? <div className="qr-live"><QRCodeCanvas value={`https://heychamba.lovable.app/registro?folio=${encodeURIComponent(folio)}`} size={176} level="M" marginSize={2} bgColor="#ffffff" fgColor="#111111"/><span><Check/> Tu pase está listo</span></div>
+        {confirmado
+          ? <div className="qr-live"><QRCodeCanvas value={valorQR(folio)} size={176} level="M" marginSize={2} bgColor="#ffffff" fgColor="#111111"/><span><Check/> Tu pase está listo</span></div>
           : <div className="qr-placeholder"><div/><span><LockKeyhole/> Bloqueado</span></div>}
-        {saved ? <>
-          <div className="verify-mail"><Mail/><div><strong>Guardamos tu perfil</strong><span>Te mandamos la confirmación a {confirmEmail}.</span></div></div>
-          <div className="folio-card"><span>Tu ID de registro</span><strong>{folio}</strong><small>Con este ID te identificamos en HeyChamba. Guárdalo.</small></div>
-        </> : <>
-          <div className="verify-mail"><Mail/><div><strong>Confirma tu correo para liberar tu QR</strong><span>Te mandamos un enlace. Ábrelo y tu pase se desbloquea al instante.</span></div></div>
+
+        {/* 1) Tu registro ya se guardó: esto pasa solo, sin que hagas nada. */}
+        {saving && <div className="verify-mail"><Mail/><div><strong>Guardando tu perfil…</strong><span>Un segundito, no cierres esta pantalla.</span></div></div>}
+        {saveError && <><span className="cp-error">{saveError}</span><Button onClick={guardarRegistroFinal} className="survey-reset">Intentar guardar otra vez</Button></>}
+        {saved && <div className="folio-card"><span>Tu ID de registro</span><strong>{folio}</strong><small>Con este ID te identificamos en HeyChamba. Guárdalo.</small></div>}
+
+        {/* 2) La confirmación del correo va aparte: es la que libera el QR. */}
+        {saved && !confirmado && <>
+          <div className="verify-mail"><Mail/><div><strong>Confirma tu correo para liberar tu QR</strong><span>{enviado ? `Te mandamos un enlace a ${confirmEmail}. Ábrelo y tu pase se desbloquea al instante.` : "Te mandamos un enlace. Ábrelo y tu pase se desbloquea al instante."}</span></div></div>
           <input type="email" value={confirmEmail} onChange={event => setConfirmEmail(event.target.value)} placeholder="tu@correo.com" className="survey-input" autoComplete="email"/>
-          {saveError && <span className="cp-error">{saveError}</span>}
-          <Button disabled={saving || !/.+@.+\..+/.test(confirmEmail)} onClick={guardarRegistroFinal} className="survey-next">{saving ? "Guardando…" : "Confirmar mi correo"}</Button>
+          {errorEnvio && <span className="cp-error">{errorEnvio}</span>}
+          <Button disabled={enviando || !/.+@.+\..+/.test(confirmEmail)} onClick={enviarMiConfirmacion} className="survey-next">{enviando ? "Enviando…" : enviado ? "Reenviar el correo" : "Enviarme el enlace"}</Button>
+          {/* Mientras no esté configurado el dominio de correo, el enlace sale aquí para poder probarlo. */}
+          {enlacePrueba && <div className="verify-mail"><Mail/><div><strong>Enlace de prueba</strong><a href={enlacePrueba}>Confirmar mi correo</a><span>Sale aquí porque todavía no configuramos el dominio de correo.</span></div></div>}
         </>}
-        <Button onClick={() => { setIndex(0); setDone(false); setSaved(false); setAnswers({ emp: 1 }); }} className="survey-reset">Volver a empezar</Button>
+        {confirmado && <div className="verify-mail"><Mail/><div><strong>Correo confirmado</strong><span>{confirmEmail}</span></div></div>}
+
+        <Button onClick={() => { setIndex(0); setDone(false); setSaved(false); setConfirmado(false); setEnviado(false); setEnlacePrueba(""); yaGuardamos.current = false; setAnswers({ emp: 1 }); }} className="survey-reset">Volver a empezar</Button>
       </div> : waiting ? <div className="survey-waiting" data-q-part><img src={formArt.waiting} alt=""/><h1>¡Gracias!</h1><p>Guardamos {city.trim() ? `tu ciudad (${city.trim()})` : "tu ciudad"}. En cuanto HeyChamba llegue ahí, nos ponemos en contacto contigo.</p><Link to="/" className="survey-next"><Globe/> Volver al inicio</Link><Button onClick={() => { setIndex(0); setWaiting(false); setPostal(null); setPostalState("idle"); setCity(""); setAnswers({ emp: 1 }); }} className="survey-reset">Volver a empezar</Button></div> : <>
         <div className="survey-question-heading" data-q-part><div><h1>{q.title}</h1>{q.note && <p>{q.note}</p>}</div><img src={q.art} alt="" className="hc-float"/></div>
         {q.type === "cp" && <div className="cp-area" data-q-part><VoxelGlobe cp={cp}/><input autoFocus inputMode="numeric" maxLength={5} value={cp} onInput={event => { const nextCp = event.currentTarget.value.replace(/\D/g, ""); if (nextCp) started.current = true; setAnswers({ ...answers, cp: nextCp, col: "" }); checkPostalCode(nextCp); }} onChange={() => undefined} placeholder={q.placeholder}/>{postalState === "loading" && <div className="cp-lookup"><span/> Consultando código postal…</div>}{cpValid && <div className="cp-status"><MapPin/> {postal.city} · {cp}</div>}{postalState === "missing" && <div className="cp-error">No encontramos ese código postal. Revísalo o dinos de dónde eres.</div>}{postalState === "error" && <div className="cp-error">No pudimos consultar el código postal. Revísalo o dinos de dónde eres.</div>}{showCityForm && <div className="cp-outside"><strong>HeyChamba aún no está en tu ciudad.</strong><span>Dinos de dónde eres y nos ponemos en contacto contigo.</span><div className="city-autocomplete"><input value={city} onChange={event => { setCity(event.target.value); setCityOpen(true); }} onClick={() => setCityOpen(false)} onBlur={() => window.setTimeout(() => setCityOpen(false), 120)} placeholder="Escribe tu ciudad" autoComplete="off" role="combobox" aria-expanded={citySuggestions.length > 0}/>{citySuggestions.length > 0 && <div className="city-suggestions" role="listbox">{citySuggestions.map(suggestion => <Button key={suggestion} type="button" role="option" onClick={() => { setCity(suggestion); setCityOpen(false); }}><MapPin/><span>{suggestion}</span></Button>)}</div>}</div><Button disabled={city.trim().length < 2} onClick={() => { void guardarEspera({ data: { folio, ciudad: city.trim(), codigoPostal: cp } }).then(res => setFolio(res.folio)).catch(() => undefined); setWaiting(true); }} className="survey-next">Avísenme cuando lleguen</Button></div>}</div>}

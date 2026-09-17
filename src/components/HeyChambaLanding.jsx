@@ -479,7 +479,7 @@ export default function Landing({ showGrid = true, showFotos = true, showFormula
                 </div>
                 <div className="flex items-center justify-center gap-[8px] [margin-top:16px]">
                   <span className="[font-weight:700] [font-size:12px] [letter-spacing:0.14em] [color:#1E1E1E]">REGISTRO EN:</span>
-                  <span className="font-title [font-weight:900] [font-size:17px] [letter-spacing:-0.01em] [color:#1E1E1E]">heychamba.mx</span>
+                  <span className="font-title [font-weight:900] [font-size:17px] [letter-spacing:-0.01em] [color:#1E1E1E]">heychamba.com</span>
                 </div>
                 <div className="absolute [left:-8%] [right:-8%] [top:50%] [transform:translateY(-50%)_rotate(-4deg)] [background:#1E1E1E] [border-top:2px_solid_#C4E539] [border-bottom:2px_solid_#C4E539] [padding:14px_20px] flex items-center justify-center">
                   <span className="font-title [font-weight:900] [font-size:clamp(26px,7vw,44px)] [line-height:1] [letter-spacing:-0.02em] [color:#C4E539] whitespace-nowrap">PRÓXIMAMENTE</span>
@@ -705,7 +705,7 @@ export default function Landing({ showGrid = true, showFotos = true, showFormula
                   <span aria-hidden="true" className="hc-float [font-size:24px] [font-weight:700] [line-height:1] [color:#1E1E1E]">{ind6}</span>
                 </button>
                 {open6 && (<>
-                  <p className="m-0 [padding:0_0_18px] [font-size:16px] [line-height:1.55] [color:#1E1E1E]">Escríbenos a marcas@heychamba.mx y te mandamos el paquete de participación.</p>
+                  <p className="m-0 [padding:0_0_18px] [font-size:16px] [line-height:1.55] [color:#1E1E1E]">Escríbenos a contacto@heychamba.com y te mandamos el paquete de participación.</p>
                 </>)}
               </div>
             </div>
@@ -755,8 +755,7 @@ export default function Landing({ showGrid = true, showFotos = true, showFormula
               </div>
               <div className="flex flex-col gap-[10px]">
                 <span className="[font-weight:700] [font-size:14px] [color:#FFFFFF]">Contacto</span>
-                <a href="mailto:hola@heychamba.mx" className="[font-size:14px] [color:rgba(255,255,255,0.8)]">hola@heychamba.mx</a>
-                <a href="mailto:marcas@heychamba.mx" className="[font-size:14px] [color:rgba(255,255,255,0.8)]">marcas@heychamba.mx</a>
+                <a href="mailto:contacto@heychamba.com" className="[font-size:14px] [color:rgba(255,255,255,0.8)]">contacto@heychamba.com</a>
               </div>
               <div className="flex flex-col gap-[10px]">
                 <span className="[font-weight:700] [font-size:14px] [color:#FFFFFF]">Redes</span>

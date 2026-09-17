@@ -10,12 +10,24 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ConfirmarRouteImport } from './routes/confirmar'
+import { Route as PaseRouteImport } from './routes/pase'
 import { Route as RegistroRouteImport } from './routes/registro'
 import { Route as ApiPublicPostalPostalCodeRouteImport } from './routes/api/public/postal.$postalCode'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConfirmarRoute = ConfirmarRouteImport.update({
+  id: '/confirmar',
+  path: '/confirmar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PaseRoute = PaseRouteImport.update({
+  id: '/pase',
+  path: '/pase',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RegistroRoute = RegistroRouteImport.update({
@@ -32,30 +44,54 @@ const ApiPublicPostalPostalCodeRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/confirmar': typeof ConfirmarRoute
+  '/pase': typeof PaseRoute
   '/registro': typeof RegistroRoute
   '/api/public/postal/$postalCode': typeof ApiPublicPostalPostalCodeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/confirmar': typeof ConfirmarRoute
+  '/pase': typeof PaseRoute
   '/registro': typeof RegistroRoute
   '/api/public/postal/$postalCode': typeof ApiPublicPostalPostalCodeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/confirmar': typeof ConfirmarRoute
+  '/pase': typeof PaseRoute
   '/registro': typeof RegistroRoute
   '/api/public/postal/$postalCode': typeof ApiPublicPostalPostalCodeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/registro' | '/api/public/postal/$postalCode'
+  fullPaths:
+    | '/'
+    | '/confirmar'
+    | '/pase'
+    | '/registro'
+    | '/api/public/postal/$postalCode'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/registro' | '/api/public/postal/$postalCode'
-  id: '__root__' | '/' | '/registro' | '/api/public/postal/$postalCode'
+  to:
+    | '/'
+    | '/confirmar'
+    | '/pase'
+    | '/registro'
+    | '/api/public/postal/$postalCode'
+  id:
+    | '__root__'
+    | '/'
+    | '/confirmar'
+    | '/pase'
+    | '/registro'
+    | '/api/public/postal/$postalCode'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ConfirmarRoute: typeof ConfirmarRoute
+  PaseRoute: typeof PaseRoute
   RegistroRoute: typeof RegistroRoute
   ApiPublicPostalPostalCodeRoute: typeof ApiPublicPostalPostalCodeRoute
 }
@@ -67,6 +103,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/confirmar': {
+      id: '/confirmar'
+      path: '/confirmar'
+      fullPath: '/confirmar'
+      preLoaderRoute: typeof ConfirmarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pase': {
+      id: '/pase'
+      path: '/pase'
+      fullPath: '/pase'
+      preLoaderRoute: typeof PaseRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/registro': {
@@ -88,6 +138,8 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ConfirmarRoute: ConfirmarRoute,
+  PaseRoute: PaseRoute,
   RegistroRoute: RegistroRoute,
   ApiPublicPostalPostalCodeRoute: ApiPublicPostalPostalCodeRoute,
 }

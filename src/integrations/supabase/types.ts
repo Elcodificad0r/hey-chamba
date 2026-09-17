@@ -19,6 +19,10 @@ export type Database = {
           ciudad: string | null
           codigo_postal: string | null
           colonia: string | null
+          confirmacion_enviada_en: string | null
+          confirmacion_intentos: number
+          correo_confirmado: boolean
+          correo_confirmado_en: string | null
           created_at: string
           email: string | null
           email_confirmacion: string | null
@@ -30,14 +34,21 @@ export type Database = {
           no_terminado: boolean
           nombre: string | null
           preguntas_respondidas: number
+          qr_emitido: boolean
+          qr_emitido_en: string | null
           respuestas: Json
           telefono: string | null
+          token_confirmacion: string | null
           updated_at: string
         }
         Insert: {
           ciudad?: string | null
           codigo_postal?: string | null
           colonia?: string | null
+          confirmacion_enviada_en?: string | null
+          confirmacion_intentos?: number
+          correo_confirmado?: boolean
+          correo_confirmado_en?: string | null
           created_at?: string
           email?: string | null
           email_confirmacion?: string | null
@@ -49,14 +60,21 @@ export type Database = {
           no_terminado?: boolean
           nombre?: string | null
           preguntas_respondidas?: number
+          qr_emitido?: boolean
+          qr_emitido_en?: string | null
           respuestas?: Json
           telefono?: string | null
+          token_confirmacion?: string | null
           updated_at?: string
         }
         Update: {
           ciudad?: string | null
           codigo_postal?: string | null
           colonia?: string | null
+          confirmacion_enviada_en?: string | null
+          confirmacion_intentos?: number
+          correo_confirmado?: boolean
+          correo_confirmado_en?: string | null
           created_at?: string
           email?: string | null
           email_confirmacion?: string | null
@@ -68,8 +86,11 @@ export type Database = {
           no_terminado?: boolean
           nombre?: string | null
           preguntas_respondidas?: number
+          qr_emitido?: boolean
+          qr_emitido_en?: string | null
           respuestas?: Json
           telefono?: string | null
+          token_confirmacion?: string | null
           updated_at?: string
         }
         Relationships: []

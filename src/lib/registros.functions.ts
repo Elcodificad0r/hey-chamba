@@ -18,7 +18,8 @@ const fase1Schema = z.object({
 
 const perfilSchema = z.object({
   folio: z.string().trim().max(20).optional().default(""),
-  emailConfirmacion: z.string().trim().email().max(160),
+  /* Puede ir vacío: el perfil se guarda aunque el correo se confirme después. */
+  emailConfirmacion: z.union([z.string().trim().email().max(160), z.literal("")]).optional().default(""),
   codigoPostal: z.string().trim().max(10).optional().default(""),
   colonia: z.string().trim().max(160).optional().default(""),
   ciudad: z.string().trim().max(160).optional().default(""),
@@ -67,7 +68,7 @@ export const guardarPerfil = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const campos = {
-      email_confirmacion: data.emailConfirmacion,
+      email_confirmacion: data.emailConfirmacion || null,
       codigo_postal: data.codigoPostal,
       colonia: data.colonia,
       ciudad: data.ciudad,
@@ -88,7 +89,7 @@ export const guardarPerfil = createServerFn({ method: "POST" })
     }
     const { data: nueva, error: errorInsert } = await supabaseAdmin
       .from("registros")
-      .insert({ ...campos, email: data.emailConfirmacion })
+      .insert({ ...campos, email: data.emailConfirmacion || null })
       .select("folio")
       .single();
     if (errorInsert) throw new Error(errorInsert.message);
@@ -177,5 +178,114 @@ export const retomarRegistro = createServerFn({ method: "POST" })
       completo: fila.estatus === "completo",
       preguntasRespondidas: (fila.preguntas_respondidas ?? 0) as number,
       respuestas: (fila.respuestas ?? {}) as Record<string, string | string[] | number>,
+    };
+  });
+
+/* ─────────────────────────────────────────────────────────────
+   CONFIRMACIÓN DE CORREO (aparte de guardar)
+   Guardar el perfil y confirmar el correo son dos cosas distintas:
+   el perfil ya quedó en la base al terminar las preguntas, y esto de
+   aquí solo sirve para saber si la persona abrió el enlace que le
+   mandamos. Cuando lo abre, se le libera el QR: ese QR es el que
+   después vale para entrar al festival virtual o para tomar asistencia.
+   ───────────────────────────────────────────────────────────── */
+
+/* Manda (o vuelve a mandar) el correo con el enlace de confirmación. */
+export const enviarConfirmacion = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) => z.object({
+    folio: z.string().trim().min(3).max(40),
+    email: z.string().trim().email().max(160),
+  }).parse(data))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { correoConfigurado, enviarCorreo, plantillaConfirmacion, urlDelSitio } = await import("@/lib/correo.server");
+
+    const { data: fila, error: errorLectura } = await supabaseAdmin
+      .from("registros")
+      .select("folio, nombre, correo_confirmado, confirmacion_intentos")
+      .eq("folio", data.folio)
+      .maybeSingle();
+    if (errorLectura) throw new Error(errorLectura.message);
+    if (!fila) throw new Error("No encontramos ese registro.");
+    /* Ya confirmó antes: no hace falta otro correo. */
+    if (fila.correo_confirmado) return { enviado: true, yaConfirmado: true, enlace: null as string | null };
+
+    const token = crypto.randomUUID();
+    const { error: errorToken } = await supabaseAdmin
+      .from("registros")
+      .update({
+        email_confirmacion: data.email,
+        token_confirmacion: token,
+        confirmacion_enviada_en: new Date().toISOString(),
+        confirmacion_intentos: (fila.confirmacion_intentos ?? 0) + 1,
+      })
+      .eq("folio", data.folio);
+    if (errorToken) throw new Error(errorToken.message);
+
+    const enlace = `${urlDelSitio()}/confirmar?token=${encodeURIComponent(token)}`;
+    const mensaje = plantillaConfirmacion((fila.nombre ?? "") as string, enlace);
+    const resultado = await enviarCorreo({ para: data.email, asunto: mensaje.asunto, html: mensaje.html, texto: mensaje.texto });
+
+    /* Mientras no haya dominio de correo configurado, devolvemos el enlace
+       para poder probar el flujo completo desde la misma pantalla. */
+    return {
+      enviado: resultado.enviado,
+      yaConfirmado: false,
+      enlace: correoConfigurado() ? null : enlace,
+    };
+  });
+
+/* La persona abrió el enlace: queda confirmada y se le emite el QR. */
+export const confirmarCorreo = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) => z.object({ token: z.string().trim().min(10).max(80) }).parse(data))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: fila, error } = await supabaseAdmin
+      .from("registros")
+      .select("folio, nombre, email_confirmacion, correo_confirmado")
+      .eq("token_confirmacion", data.token)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!fila) return null;
+
+    if (!fila.correo_confirmado) {
+      const ahora = new Date().toISOString();
+      const { error: errorUpdate } = await supabaseAdmin
+        .from("registros")
+        .update({
+          correo_confirmado: true,
+          correo_confirmado_en: ahora,
+          qr_emitido: true,
+          qr_emitido_en: ahora,
+        })
+        .eq("folio", fila.folio);
+      if (errorUpdate) throw new Error(errorUpdate.message);
+    }
+
+    return {
+      folio: fila.folio as string,
+      nombre: (fila.nombre ?? "") as string,
+      email: (fila.email_confirmacion ?? "") as string,
+    };
+  });
+
+/* ¿Ya confirmó? La pantalla del registro pregunta esto cada rato
+   para desbloquear el QR en cuanto la persona abra el enlace. */
+export const estadoConfirmacion = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) => z.object({ folio: z.string().trim().min(3).max(40) }).parse(data))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: fila, error } = await supabaseAdmin
+      .from("registros")
+      .select("folio, nombre, correo_confirmado, qr_emitido")
+      .eq("folio", data.folio)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!fila) return null;
+    return {
+      folio: fila.folio as string,
+      nombre: (fila.nombre ?? "") as string,
+      correoConfirmado: Boolean(fila.correo_confirmado),
+      qrEmitido: Boolean(fila.qr_emitido),
     };
   });
