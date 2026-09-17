@@ -319,7 +319,7 @@ export default function Landing({ showGrid = true, showFotos = true, showFormula
                   <img src={icons.disco} alt="" aria-hidden="true" className="hc-float [flex:0_0_auto] [width:52px] [height:52px] object-contain [transform:rotate(-6deg)]" />
                 </>)}</div>
                 <h3 className="m-0 font-title [font-weight:800] [font-size:21px] [line-height:1.1] [color:#1E1E1E]">Recibes tu QR</h3>
-                <p className="m-0 [font-size:16px] [line-height:1.5] [color:#1E1E1E]">Tu pase al festival llega por WhatsApp y correo.</p>
+                <p className="m-0 [font-size:16px] [line-height:1.5] [color:#1E1E1E]">Tu pase al festival llega por correo, en cuanto lo confirmas.</p>
               </div>
               <div className="[background:#CCC7FF] [border-radius:32px] [padding:24px] [box-shadow:6px_6px_0_#3535BA] flex flex-col gap-[10px] [transition:transform_.18s_ease,box-shadow_.18s_ease] hover:![transform:translate(-3px,-3px)] hover:![box-shadow:10px_10px_0_#3535BA]">
                 <div className="flex items-center justify-between gap-[12px]"><span className="font-title [font-weight:900] [font-size:40px] [line-height:1] [color:#3535BA]">04</span>
@@ -555,7 +555,7 @@ export default function Landing({ showGrid = true, showFotos = true, showFormula
                   <div className="[flex:1] [height:16px] [background:#FFFFFF] [border:2px_solid_#1E1E1E] [border-radius:999px]"></div>
                   <div className="[flex:1] [height:16px] [background:#FFFFFF] [border:2px_solid_#1E1E1E] [border-radius:999px]"></div>
                 </div>
-                <span className="[font-size:13px] [font-weight:500] [line-height:1.4] [color:#565656]">Con esto ya tienes lugar. Las fases 2 y 3 te llegan por WhatsApp.</span>
+                <span className="[font-size:13px] [font-weight:500] [line-height:1.4] [color:#565656]">Con esto ya tienes lugar. Las fases 2 y 3 las contestas aquí mismo, en nuestro formulario interactivo.</span>
               </div>
       
               <div className="flex flex-col gap-[14px] [border-top:2px_solid_#1E1E1E] [padding-top:20px] max-[820px]:hidden">
@@ -566,7 +566,7 @@ export default function Landing({ showGrid = true, showFotos = true, showFormula
                 </div>
                 <div className="flex items-start gap-[14px]">
                   <img src={icons.disco} alt="" aria-hidden="true" className="hc-float [flex:0_0_auto] [width:44px] [height:44px] object-contain [transform:rotate(7deg)]" />
-                  <p className="m-0 [font-size:16px] [line-height:1.5] [color:#1E1E1E]"><strong>Completas las fases 2 y 3</strong> por WhatsApp, cuando puedas.</p>
+                  <p className="m-0 [font-size:16px] [line-height:1.5] [color:#1E1E1E]"><strong>Completas las fases 2 y 3</strong> en nuestro formulario interactivo, a tu ritmo. Si te sales a medias, te mandamos un enlace para seguirle donde te quedaste.</p>
                 </div>
                 <div className="flex items-start gap-[14px]">
                   <img src={icons.coin} alt="" aria-hidden="true" className="hc-float [flex:0_0_auto] [width:44px] [height:44px] object-contain [transform:rotate(-6deg)]" />
@@ -778,6 +778,9 @@ export default function Landing({ showGrid = true, showFotos = true, showFormula
               <div className="flex flex-col gap-[10px]">
                 <span className="[font-weight:700] [font-size:14px] [color:#FFFFFF]">Redes</span>
                 <a href="https://www.instagram.com/heychamba/" target="_blank" rel="noreferrer" className="[font-size:14px] [color:rgba(255,255,255,0.8)]">Instagram</a>
+                <a href="https://www.tiktok.com/@heychamba" target="_blank" rel="noreferrer" className="[font-size:14px] [color:rgba(255,255,255,0.8)]">TikTok</a>
+                <a href="https://www.facebook.com/profile.php?id=61593944916264" target="_blank" rel="noreferrer" className="[font-size:14px] [color:rgba(255,255,255,0.8)]">Facebook</a>
+                <a href="https://www.linkedin.com/company/heychamba/" target="_blank" rel="noreferrer" className="[font-size:14px] [color:rgba(255,255,255,0.8)]">LinkedIn</a>
               </div>
             </div>
             <span className="[font-size:13px] [color:rgba(255,255,255,0.6)]">© 2026 HeyChamba. Festival virtual de empleo, México.</span>
