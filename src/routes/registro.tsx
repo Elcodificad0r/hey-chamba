@@ -573,7 +573,7 @@ function Registro() {
       {done ? <div className="survey-finish" data-q-part>
         <FinishConfetti />
         <div className="finish-icons"><img src={formArt.finishA} alt=""/><img src={formArt.finishB} alt=""/><img src={formArt.finishC} alt=""/></div>
-        <h1>{contacto.nombre ? `${contacto.nombre.split(" ")[0]}, tu perfil está listo.` : "Tu perfil está listo."}</h1><p>Nos vemos el 15 de septiembre. Ya nada más falta confirmar tu correo.</p>
+        <h1>{contacto.nombre ? `${contacto.nombre.split(" ")[0]}, tu perfil está listo.` : "Tu perfil está listo."}</h1><p>Nos vemos el 15 de octubre. Ya nada más falta confirmar tu correo.</p>
         {/* El QR nace apenas se confirma el correo. Antes de eso ni siquiera
             existe el token que lleva dentro, así que no hay nada que bajar. */}
         {confirmado && qrToken
