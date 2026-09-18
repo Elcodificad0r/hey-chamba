@@ -624,10 +624,10 @@ export default function Landing({ showGrid = true, showFotos = true, showFormula
         <section id="marcas" className="relative [background:#5251F7] [padding:56px_clamp(20px,5vw,72px)_64px] overflow-hidden">
           <div className="relative [max-width:1180px] [margin:0_auto] flex flex-wrap items-start gap-y-[32px] gap-x-[40px]">
             <div className="[flex:1_1_340px] min-w-0 [max-width:520px] flex flex-col gap-[24px]">
-            <span className="[align-self:flex-start] [background:#C4E539] [color:#1E1E1E] [font-weight:700] [font-size:14px] [padding:8px_16px] [border-radius:999px] [box-shadow:3px_3px_0_#1E1E1E]">Para marcas de retail</span>
-            <h2 className="m-0 [max-width:24ch] font-title [font-weight:900] [font-size:clamp(34px,9vw,64px)] [line-height:0.95] [letter-spacing:-0.02em] [color:#C4E539] [text-shadow:5px_5px_0_#1E1E1E]">Contrata temporada sin filas en tu tienda.</h2>
+            <span className="[align-self:flex-start] [background:#C4E539] [color:#1E1E1E] [font-weight:700] [font-size:14px] [padding:8px_16px] [border-radius:999px] [box-shadow:3px_3px_0_#1E1E1E]">Para retail y empresas con alta rotación</span>
+            <h2 className="m-0 [max-width:24ch] font-title [font-weight:900] [font-size:clamp(34px,9vw,64px)] [line-height:0.95] [letter-spacing:-0.02em] [color:#C4E539] [text-shadow:5px_5px_0_#1E1E1E]">Contrata en volumen sin perder tiempo.</h2>
             <div className="flex items-end justify-between gap-[16px]">
-              <p className="m-0 [max-width:30ch] [color:#FFFFFF] [font-size:18px] [line-height:1.5]">Te mandamos candidatos que viven cerca de tus sucursales, ya filtrados por disponibilidad y experiencia.</p>
+              <p className="m-0 [max-width:30ch] [color:#FFFFFF] [font-size:18px] [line-height:1.5]">Te mandamos candidatos cerca de tus puntos de trabajo, ya filtrados por disponibilidad y experiencia.</p>
               {showFotos && (<>
                 <img src={icons.burger} alt="" aria-hidden="true" className="hc-float [flex:0_0_auto] [width:74px] [height:74px] object-contain [transform:rotate(-10deg)]" />
               </>)}
@@ -635,7 +635,7 @@ export default function Landing({ showGrid = true, showFotos = true, showFormula
             <div className="flex flex-col gap-[12px] [border-top:2px_solid_rgba(255,255,255,0.4)] [padding-top:20px] max-[820px]:hidden">
               <div className="flex items-baseline gap-[14px]">
                 <span className="font-title [font-weight:900] [font-size:34px] [line-height:1] [color:#C4E539]">45 min</span>
-                <span className="[font-size:16px] [font-weight:500] [line-height:1.4] [color:#FFFFFF]">de radio máximo entre candidato y sucursal</span>
+                <span className="[font-size:16px] [font-weight:500] [line-height:1.4] [color:#FFFFFF]">de radio máximo entre candidato y tu ubicación</span>
               </div>
               <div className="flex items-baseline gap-[14px]">
                 <span className="font-title [font-weight:900] [font-size:34px] [line-height:1] [color:#C4E539]">3 fases</span>
@@ -647,7 +647,8 @@ export default function Landing({ showGrid = true, showFotos = true, showFormula
               </div>
             </div>
             </div>
-            <div className="[flex:1_1_380px] min-w-0 [max-width:560px] [background:#FFFFFF] [border-radius:32px] [padding:24px] [box-shadow:8px_8px_0_#3535BA] flex flex-col gap-[20px]">
+            <div className="[flex:1_1_380px] min-w-0 [max-width:560px] flex flex-col gap-[24px]">
+              <div className="[background:#FFFFFF] [border-radius:32px] [padding:24px] [box-shadow:8px_8px_0_#3535BA] flex flex-col gap-[20px]">
               <h3 className="m-0 font-title [font-weight:800] [font-size:22px] [line-height:1.1] [color:#1E1E1E]">Quiero el paquete de participación</h3>
               <form onSubmit={noSubmit} className="flex flex-col gap-[20px]">
                 <div className="grid [grid-template-columns:repeat(auto-fit,minmax(200px,1fr))] gap-[20px]">
@@ -670,6 +671,31 @@ export default function Landing({ showGrid = true, showFotos = true, showFormula
                 </div>
                 <button type="submit" className="[align-self:flex-start] [min-height:52px] [padding:0_32px] [background:#5251F7] [color:#FFFFFF] border-none [border-radius:999px] [font-weight:700] [font-size:17px] [box-shadow:4px_4px_0_#3535BA] cursor-pointer">Soy marca</button>
               </form>
+              </div>
+
+              {/* Los datos del pitch. Van solo en escritorio: llenan el hueco
+                  que queda debajo del formulario cuando las dos columnas se
+                  ponen lado a lado. En celular las columnas se apilan, no hay
+                  hueco, y este bloque estorbaría antes del siguiente tema. */}
+              <div className="max-[820px]:hidden flex flex-col gap-[16px]">
+                <span className="[align-self:flex-start] [background:#1E1E1E] [color:#FFFFFF] [font-weight:700] [font-size:11px] [letter-spacing:0.12em] [padding:6px_14px] [border-radius:999px]">POR QUÉ PASA</span>
+                <div className="grid [grid-template-columns:repeat(3,minmax(0,1fr))] gap-[12px]">
+                  {[
+                    { color: '#C4E539', dato: '20%', texto: 'de las bajas ocurren con CERO días trabajados' },
+                    { color: '#DFA0F9', dato: '2 de 3', texto: 'candidatos viven lejos de donde los contratan' },
+                    { color: '#A1DBFF', dato: '80%', texto: 'del talento de alto volumen tiene 18\u201328 años' },
+                  ].map(({ color, dato, texto }) => (
+                    <div key={dato} className="[background:#1E1E1E] [border-radius:24px] [box-shadow:8px_8px_0_#3535BA] overflow-hidden flex flex-col">
+                      <div className="[height:8px]" style={{ background: color }}></div>
+                      <div className="flex flex-col gap-[8px] [padding:18px_20px]">
+                        <span className="font-title [font-weight:900] [font-size:34px] [line-height:1] [letter-spacing:-0.02em]" style={{ color }}>{dato}</span>
+                        <span className="[font-size:14px] [font-weight:500] [line-height:1.4] [color:#FFFFFF]">{texto}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <p className="m-0 [font-size:13px] [font-style:italic] [line-height:1.45] [color:rgba(255,255,255,0.72)]">Fuente: análisis de 5,615 bajas reales de retail en México (2023\u20132026) y 203 contrataciones.</p>
+              </div>
             </div>
           </div>
         </section>
