@@ -408,3 +408,113 @@ img {
 /* Cada 4 casillas dejamos un respiro: se leen por bloques.
    Las 18 caben en una línea hasta en pantallas de 320px. */
 .curp-casillas i:nth-child(4n):not(:last-child){margin-right:6px}
+
+/* ─────────────────────────────────────────────────────────────
+   PÁGINAS LEGALES
+   Páginas de lectura: blanco, retícula de fondo, una columna y aire.
+   Sin hero, sin cards, sin decoración. Lo único que se parece al
+   resto del sitio son el logo, el botón y los acentos en lima.
+   ───────────────────────────────────────────────────────────── */
+.legal{position:relative;min-height:100dvh;background:#FFFFFF;color:var(--ink);padding:0 20px 72px}
+/* La retícula va de fondo, no compitiendo con el texto: sobre blanco
+   el mismo trazo del formulario se ve tres veces más fuerte. */
+.legal .survey-grid{opacity:.13}
+
+.legal-marco{position:relative;max-width:980px;margin:0 auto}
+.legal-header{padding:24px 0;display:flex;align-items:center}
+.legal-logo{font-family:var(--font-title);font-weight:900;font-size:23px;letter-spacing:-.02em;color:var(--ink);text-decoration:none}
+
+/* El texto legal. Todo cuelga de aquí para no ensuciar el resto del sitio. */
+.legal-cuerpo{min-width:0;max-width:720px;padding:16px 0 8px;font-size:17px;line-height:1.7;color:#1A1A1A}
+.legal-cuerpo>*:first-child{margin-top:0}
+
+.legal-cuerpo h1{margin:0 0 32px;font-family:var(--font-title);font-weight:900;font-size:clamp(34px,7vw,52px);line-height:1.02;letter-spacing:-.02em;color:var(--ink)}
+.legal-cuerpo h2{margin:48px 0 14px;font-family:var(--font-title);font-weight:900;font-size:clamp(23px,4.5vw,29px);line-height:1.15;letter-spacing:-.01em;color:var(--ink)}
+.legal-cuerpo h3{margin:32px 0 10px;font-weight:800;font-size:19px;line-height:1.25;color:var(--ink)}
+/* Los números de apartado en lima, como pidió el cliente. Se ven sobre
+   blanco gracias al contorno oscuro. */
+.legal-cuerpo h2::first-line{color:var(--ink)}
+
+.legal-cuerpo p{margin:0 0 18px}
+.legal-cuerpo strong{font-weight:800}
+.legal-cuerpo em{font-style:italic}
+.legal-cuerpo ul,.legal-cuerpo ol{margin:0 0 20px;padding-left:24px;display:flex;flex-direction:column;gap:9px}
+.legal-cuerpo li{line-height:1.6}
+.legal-cuerpo a{color:var(--ink);font-weight:700;text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px;text-decoration-color:var(--lime)}
+.legal-cuerpo hr{margin:40px 0;border:0;border-top:2px solid rgba(30,30,30,.12)}
+
+/* Las notas del abogado, en blockquote */
+.legal-cuerpo blockquote{margin:0 0 22px;padding:16px 20px;background:#FAF7F0;border-left:5px solid var(--lime);border-radius:0 14px 14px 0}
+.legal-cuerpo blockquote p:last-child{margin-bottom:0}
+
+/* Las tablas hacen scroll dentro de su caja, nunca empujan la página. */
+.legal-cuerpo table{display:block;width:100%;max-width:100%;overflow-x:auto;border-collapse:collapse;margin:0 0 24px;font-size:15px}
+.legal-cuerpo th,.legal-cuerpo td{padding:11px 14px;text-align:left;vertical-align:top;border:2px solid rgba(30,30,30,.14);line-height:1.5}
+.legal-cuerpo th{background:#FAF7F0;font-weight:800}
+/* Varias tablas de los avisos son de dos columnas sin encabezado; markdown
+   genera igual un <thead> vacío que solo deja una franja hueca. */
+.legal-cuerpo thead:has(th:empty){display:none}
+
+.legal-pie{margin-top:8px;padding-top:40px;border-top:2px solid rgba(30,30,30,.12);display:flex;flex-direction:column;gap:24px;align-items:flex-start}
+.legal-pie p{margin:0;font-size:13px;line-height:1.6;color:#565656}
+.legal-pie a{color:#565656}
+/* El mismo botón sólido del formulario de marcas. */
+.legal-pie .legal-boton{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:0 32px;background:#5251F7;color:#FFFFFF;border:none;border-radius:999px;box-shadow:4px 4px 0 #3535BA;font-weight:700;font-size:17px;text-decoration:none}
+.legal-pie .legal-boton svg{width:18px;height:18px;color:#FFFFFF}
+
+@media (max-width:640px){
+  .legal-cuerpo{font-size:16px}
+  .legal-boton{width:100%}
+}
+
+/* ─────────────────────────────────────────────────────────────
+   CASILLAS DE CONSENTIMIENTO
+   El cuadrito lleva el mismo tratamiento que el resto del sitio:
+   borde de 2px, esquinas redondeadas y sombra dura sin blur.
+   ───────────────────────────────────────────────────────────── */
+.casilla-campo{display:flex;flex-direction:column;gap:7px}
+.casilla{display:flex;align-items:flex-start;gap:12px}
+
+/* El input real vive debajo del cuadrito dibujado: invisible pero
+   enfocable, para que Espacio y los lectores de pantalla funcionen. */
+.casilla-input{position:absolute;width:22px;height:22px;margin:0;opacity:0;cursor:pointer}
+
+.casilla-caja{flex:0 0 auto;width:22px;height:22px;margin-top:1px;display:grid;place-items:center;background:#FFFFFF;border:2px solid var(--ink);border-radius:7px;box-shadow:3px 3px 0 var(--ink);cursor:pointer}
+.casilla-caja svg{width:15px;height:15px;color:var(--ink);opacity:0;stroke-width:3.5}
+.casilla-input:checked ~ .casilla-caja{background:var(--lime)}
+.casilla-input:checked ~ .casilla-caja svg{opacity:1}
+/* El anillo de foco del sistema, para quien navega con teclado. */
+.casilla-input:focus-visible ~ .casilla-caja{outline:3px solid #5251F7;outline-offset:3px}
+
+.casilla-texto{flex:1;min-width:0;font-size:14px;font-weight:500;line-height:1.45;color:#1E1E1E;cursor:pointer}
+.casilla-enlace{color:#1E1E1E;font-weight:800;text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:2px;text-decoration-color:var(--lime);cursor:pointer;background:linear-gradient(transparent 62%,var(--lime) 62%)}
+
+.casilla.is-error .casilla-caja{border-color:#C0392B;box-shadow:3px 3px 0 #C0392B}
+.casilla-error{padding-left:34px;font-size:13px;font-weight:700;line-height:1.4;color:#C0392B}
+
+/* Sobre el morado del formulario de marcas el texto va en blanco. */
+.casilla-oscuro .casilla-texto{color:#FFFFFF}
+.casilla-oscuro .casilla-enlace{color:#FFFFFF;background:none;text-decoration-color:var(--lime)}
+.casilla-oscuro .casilla-error{color:#FFD5CF}
+
+/* ── El menú lateral de los documentos legales ────────────────
+   En escritorio va pegado a la izquierda y se queda fijo al hacer
+   scroll; en pantallas angostas se vuelve una fila de chips arriba
+   del texto, que se desliza si no caben.
+   ──────────────────────────────────────────────────────────── */
+.legal-layout{display:grid;grid-template-columns:200px minmax(0,1fr);gap:44px;align-items:start}
+.legal-menu{position:sticky;top:24px;display:flex;flex-direction:column;gap:3px;padding-top:22px}
+.legal-menu-titulo{margin-bottom:7px;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#8A8A8A}
+.legal-menu-item{padding:9px 12px;border-radius:12px;font-size:14px;font-weight:600;line-height:1.35;color:#565656;text-decoration:none;border:2px solid transparent}
+.legal-menu-item:hover{background:#FAF7F0;color:var(--ink)}
+.legal-menu-item.is-actual{background:var(--lime);border-color:var(--ink);box-shadow:3px 3px 0 var(--ink);color:var(--ink);font-weight:800}
+
+@media (max-width:900px){
+  .legal-layout{grid-template-columns:minmax(0,1fr);gap:8px}
+  .legal-menu{position:static;flex-direction:row;gap:8px;padding:4px 0 12px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  /* La barra de scroll de la fila de chips estorba más de lo que ayuda. */
+  .legal-menu::-webkit-scrollbar{display:none}
+  .legal-menu-titulo{display:none}
+  .legal-menu-item{flex:0 0 auto;white-space:nowrap;background:#FAF7F0;border-color:rgba(30,30,30,.12);border-radius:999px;font-size:13px}
+  .legal-menu-item.is-actual{box-shadow:2px 2px 0 var(--ink)}
+}

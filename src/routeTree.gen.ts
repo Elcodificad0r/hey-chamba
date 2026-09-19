@@ -10,10 +10,14 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AvisoDePrivacidadRouteImport } from './routes/aviso-de-privacidad'
+import { Route as AvisoDePrivacidadSimplificadoRouteImport } from './routes/aviso-de-privacidad-simplificado'
 import { Route as CheckinRouteImport } from './routes/checkin'
 import { Route as ConfirmarRouteImport } from './routes/confirmar'
 import { Route as PaseRouteImport } from './routes/pase'
 import { Route as RegistroRouteImport } from './routes/registro'
+import { Route as TerminosYCondicionesRouteImport } from './routes/terminos-y-condiciones'
+import { Route as UsoDeInformacionRouteImport } from './routes/uso-de-informacion'
 import { Route as ApiPublicPostalPostalCodeRouteImport } from './routes/api/public/postal.$postalCode'
 
 const IndexRoute = IndexRouteImport.update({
@@ -21,6 +25,17 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AvisoDePrivacidadRoute = AvisoDePrivacidadRouteImport.update({
+  id: '/aviso-de-privacidad',
+  path: '/aviso-de-privacidad',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AvisoDePrivacidadSimplificadoRoute =
+  AvisoDePrivacidadSimplificadoRouteImport.update({
+    id: '/aviso-de-privacidad-simplificado',
+    path: '/aviso-de-privacidad-simplificado',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const CheckinRoute = CheckinRouteImport.update({
   id: '/checkin',
   path: '/checkin',
@@ -41,6 +56,16 @@ const RegistroRoute = RegistroRouteImport.update({
   path: '/registro',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TerminosYCondicionesRoute = TerminosYCondicionesRouteImport.update({
+  id: '/terminos-y-condiciones',
+  path: '/terminos-y-condiciones',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UsoDeInformacionRoute = UsoDeInformacionRouteImport.update({
+  id: '/uso-de-informacion',
+  path: '/uso-de-informacion',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicPostalPostalCodeRoute =
   ApiPublicPostalPostalCodeRouteImport.update({
     id: '/api/public/postal/$postalCode',
@@ -50,62 +75,90 @@ const ApiPublicPostalPostalCodeRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/aviso-de-privacidad': typeof AvisoDePrivacidadRoute
+  '/aviso-de-privacidad-simplificado': typeof AvisoDePrivacidadSimplificadoRoute
   '/checkin': typeof CheckinRoute
   '/confirmar': typeof ConfirmarRoute
   '/pase': typeof PaseRoute
   '/registro': typeof RegistroRoute
+  '/terminos-y-condiciones': typeof TerminosYCondicionesRoute
+  '/uso-de-informacion': typeof UsoDeInformacionRoute
   '/api/public/postal/$postalCode': typeof ApiPublicPostalPostalCodeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/aviso-de-privacidad': typeof AvisoDePrivacidadRoute
+  '/aviso-de-privacidad-simplificado': typeof AvisoDePrivacidadSimplificadoRoute
   '/checkin': typeof CheckinRoute
   '/confirmar': typeof ConfirmarRoute
   '/pase': typeof PaseRoute
   '/registro': typeof RegistroRoute
+  '/terminos-y-condiciones': typeof TerminosYCondicionesRoute
+  '/uso-de-informacion': typeof UsoDeInformacionRoute
   '/api/public/postal/$postalCode': typeof ApiPublicPostalPostalCodeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/aviso-de-privacidad': typeof AvisoDePrivacidadRoute
+  '/aviso-de-privacidad-simplificado': typeof AvisoDePrivacidadSimplificadoRoute
   '/checkin': typeof CheckinRoute
   '/confirmar': typeof ConfirmarRoute
   '/pase': typeof PaseRoute
   '/registro': typeof RegistroRoute
+  '/terminos-y-condiciones': typeof TerminosYCondicionesRoute
+  '/uso-de-informacion': typeof UsoDeInformacionRoute
   '/api/public/postal/$postalCode': typeof ApiPublicPostalPostalCodeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/aviso-de-privacidad'
+    | '/aviso-de-privacidad-simplificado'
     | '/checkin'
     | '/confirmar'
     | '/pase'
     | '/registro'
+    | '/terminos-y-condiciones'
+    | '/uso-de-informacion'
     | '/api/public/postal/$postalCode'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/aviso-de-privacidad'
+    | '/aviso-de-privacidad-simplificado'
     | '/checkin'
     | '/confirmar'
     | '/pase'
     | '/registro'
+    | '/terminos-y-condiciones'
+    | '/uso-de-informacion'
     | '/api/public/postal/$postalCode'
   id:
     | '__root__'
     | '/'
+    | '/aviso-de-privacidad'
+    | '/aviso-de-privacidad-simplificado'
     | '/checkin'
     | '/confirmar'
     | '/pase'
     | '/registro'
+    | '/terminos-y-condiciones'
+    | '/uso-de-informacion'
     | '/api/public/postal/$postalCode'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AvisoDePrivacidadRoute: typeof AvisoDePrivacidadRoute
+  AvisoDePrivacidadSimplificadoRoute: typeof AvisoDePrivacidadSimplificadoRoute
   CheckinRoute: typeof CheckinRoute
   ConfirmarRoute: typeof ConfirmarRoute
   PaseRoute: typeof PaseRoute
   RegistroRoute: typeof RegistroRoute
+  TerminosYCondicionesRoute: typeof TerminosYCondicionesRoute
+  UsoDeInformacionRoute: typeof UsoDeInformacionRoute
   ApiPublicPostalPostalCodeRoute: typeof ApiPublicPostalPostalCodeRoute
 }
 
@@ -116,6 +169,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/aviso-de-privacidad': {
+      id: '/aviso-de-privacidad'
+      path: '/aviso-de-privacidad'
+      fullPath: '/aviso-de-privacidad'
+      preLoaderRoute: typeof AvisoDePrivacidadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/aviso-de-privacidad-simplificado': {
+      id: '/aviso-de-privacidad-simplificado'
+      path: '/aviso-de-privacidad-simplificado'
+      fullPath: '/aviso-de-privacidad-simplificado'
+      preLoaderRoute: typeof AvisoDePrivacidadSimplificadoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/checkin': {
@@ -146,6 +213,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RegistroRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/terminos-y-condiciones': {
+      id: '/terminos-y-condiciones'
+      path: '/terminos-y-condiciones'
+      fullPath: '/terminos-y-condiciones'
+      preLoaderRoute: typeof TerminosYCondicionesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/uso-de-informacion': {
+      id: '/uso-de-informacion'
+      path: '/uso-de-informacion'
+      fullPath: '/uso-de-informacion'
+      preLoaderRoute: typeof UsoDeInformacionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/postal/$postalCode': {
       id: '/api/public/postal/$postalCode'
       path: '/api/public/postal/$postalCode'
@@ -158,10 +239,14 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AvisoDePrivacidadRoute: AvisoDePrivacidadRoute,
+  AvisoDePrivacidadSimplificadoRoute: AvisoDePrivacidadSimplificadoRoute,
   CheckinRoute: CheckinRoute,
   ConfirmarRoute: ConfirmarRoute,
   PaseRoute: PaseRoute,
   RegistroRoute: RegistroRoute,
+  TerminosYCondicionesRoute: TerminosYCondicionesRoute,
+  UsoDeInformacionRoute: UsoDeInformacionRoute,
   ApiPublicPostalPostalCodeRoute: ApiPublicPostalPostalCodeRoute,
 }
 export const routeTree = rootRouteImport

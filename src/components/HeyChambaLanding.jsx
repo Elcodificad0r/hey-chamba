@@ -4,6 +4,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
    se pinta en el encabezado: es preferible que no exista a que mande a un
    sitio que todavía no levanta. Se prende poniendo aquí la dirección. */
 const PORTAL = '';
+import { CasillaLegal, EnlaceLegal } from '@/components/CasillaLegal';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { icons, photos } from '@/lib/heychamba-assets';
@@ -27,7 +28,28 @@ export default function Landing({ showGrid = true, showFotos = true, showFormula
   const toggleMenu = () => setMenuOpen(v => !v);
   const closeMenu = () => setMenuOpen(false);
   const noSubmit = e => e.preventDefault();
+
+  /* El formulario de marcas todavía no manda la información a ningún lado,
+     pero la casilla obligatoria ya bloquea el envío: sin aceptar, no pasa. */
+  const submitMarca = e => {
+    e.preventDefault();
+    if (!marca.aviso) {
+      setErrorMarca('Necesitamos que aceptes el Aviso de Privacidad para continuar.');
+      const casilla = e.target.querySelector('#hc-m-acepto');
+      casilla?.closest('.casilla-campo')?.scrollIntoView({ block: 'center' });
+      casilla?.focus();
+      return;
+    }
+    setErrorMarca('');
+  };
   const [errorNombre, setErrorNombre] = useState('');
+  /* Consentimiento del candidato. Ninguna arranca marcada: el artículo 7
+     de la LFPDPPP pide una acción afirmativa de la persona. */
+  const [cand, setCand] = useState({ aviso: false, edad: false, comunicaciones: false });
+  const [errorCand, setErrorCand] = useState({ aviso: '', edad: '' });
+  /* Consentimiento de la marca. */
+  const [marca, setMarca] = useState({ aviso: false, comunicaciones: false });
+  const [errorMarca, setErrorMarca] = useState('');
 
   /* El globo del formulario se precarga aquí, en tiempo muerto. */
   useEffect(() => { preloadVoxelGlobe(); }, []);
@@ -48,6 +70,22 @@ export default function Landing({ showGrid = true, showFotos = true, showFormula
       return;
     }
     setErrorNombre('');
+
+    /* Sin las casillas obligatorias no sale nada: el consentimiento tiene
+       que existir antes de que el dato salga del navegador. */
+    const faltan = { aviso: cand.aviso ? '' : 'Necesitamos que aceptes el Aviso de Privacidad para continuar.',
+                     edad: cand.edad ? '' : 'Solo podemos registrar a personas mayores de 18 años.' };
+    setErrorCand(faltan);
+    if (faltan.aviso || faltan.edad) {
+      const primera = e.target.querySelector(faltan.aviso ? '#hc-acepto-aviso' : '#hc-soy-mayor');
+      primera?.closest('.casilla-campo')?.scrollIntoView({ block: 'center' });
+      primera?.focus();
+      return;
+    }
+    /* Queda en el registro qué aceptó exactamente. */
+    d.acepto_aviso = 'true';
+    d.soy_mayor_de_edad = 'true';
+    d.acepto_comunicaciones = String(cand.comunicaciones);
 
     /* Fase 1: guardamos nombre, telefono y correo en la base y nos traemos el folio interno. */
     let folio = '';
@@ -611,8 +649,22 @@ export default function Landing({ showGrid = true, showFotos = true, showFormula
                         <label htmlFor="hc-email" className="[font-weight:700] [font-size:14px] [color:#1E1E1E]">Correo</label>
                         <input id="hc-email" name="email" type="email" placeholder="tu@correo.com" className="[height:56px] [padding:16px_20px] [border:2px_solid_#1E1E1E] [border-radius:24px] [font-size:16px] [color:#1E1E1E] [background:#FFFFFF]" />
                       </div>
-                    <button type="submit" className="[align-self:flex-start] [min-height:56px] [padding:0_36px] [background:#DFA0F9] [color:#1E1E1E] [border:2px_solid_#1E1E1E] [border-radius:999px] [font-weight:900] [font-size:18px] [box-shadow:5px_5px_0_#AF1C7B] cursor-pointer">Quiero mi lugar</button>
-                    <span className="[font-size:13px] [font-weight:500] [line-height:1.4] [color:#565656]">Al registrarte aceptas nuestro <a href="#aviso">aviso de privacidad</a>. Tus datos no se venden.</span>
+                    <div className="flex flex-col gap-[14px]">
+                      <CasillaLegal id="hc-acepto-aviso" checked={cand.aviso} error={errorCand.aviso}
+                        onChange={v => { setCand(c => ({ ...c, aviso: v })); if (v) setErrorCand(x => ({ ...x, aviso: '' })); }}>
+                        Acepto el <EnlaceLegal href="/aviso-de-privacidad">Aviso de Privacidad</EnlaceLegal> y los <EnlaceLegal href="/terminos-y-condiciones">Términos y Condiciones</EnlaceLegal>, y autorizo que mis datos sean transferidos a las empresas empleadoras para ser considerado en sus vacantes.
+                      </CasillaLegal>
+                      <CasillaLegal id="hc-soy-mayor" checked={cand.edad} error={errorCand.edad}
+                        onChange={v => { setCand(c => ({ ...c, edad: v })); if (v) setErrorCand(x => ({ ...x, edad: '' })); }}>
+                        Confirmo que soy mayor de 18 años.
+                      </CasillaLegal>
+                      <CasillaLegal id="hc-comunicaciones" checked={cand.comunicaciones}
+                        onChange={v => setCand(c => ({ ...c, comunicaciones: v }))}>
+                        Quiero recibir vacantes, invitaciones a eventos y comunicaciones de temporadas posteriores. <span className="[color:#565656]">(Opcional)</span>
+                      </CasillaLegal>
+                    </div>
+                    <button type="submit" disabled={!cand.aviso || !cand.edad} className="[align-self:flex-start] [min-height:56px] [padding:0_36px] [background:#DFA0F9] [color:#1E1E1E] [border:2px_solid_#1E1E1E] [border-radius:999px] [font-weight:900] [font-size:18px] [box-shadow:5px_5px_0_#AF1C7B] cursor-pointer disabled:[opacity:0.45] disabled:cursor-not-allowed disabled:[box-shadow:none]">Quiero mi lugar</button>
+                    <span className="[font-size:13px] [font-weight:500] [line-height:1.4] [color:#565656]">Tus datos no se venden.</span>
                   </div>
                 </div>
       
@@ -650,7 +702,7 @@ export default function Landing({ showGrid = true, showFotos = true, showFormula
             <div className="[flex:1_1_380px] min-w-0 [max-width:560px] flex flex-col gap-[24px]">
               <div className="[background:#FFFFFF] [border-radius:32px] [padding:24px] [box-shadow:8px_8px_0_#3535BA] flex flex-col gap-[20px]">
               <h3 className="m-0 font-title [font-weight:800] [font-size:22px] [line-height:1.1] [color:#1E1E1E]">Quiero el paquete de participación</h3>
-              <form onSubmit={noSubmit} className="flex flex-col gap-[20px]">
+              <form onSubmit={submitMarca} className="flex flex-col gap-[20px]">
                 <div className="grid [grid-template-columns:repeat(auto-fit,minmax(200px,1fr))] gap-[20px]">
                   <div className="flex flex-col gap-[8px]">
                     <label htmlFor="hc-m-nombre" className="[font-weight:700] [font-size:14px] [color:#1E1E1E]">Nombre</label>
@@ -669,7 +721,17 @@ export default function Landing({ showGrid = true, showFotos = true, showFormula
                     <input id="hc-m-vacantes" name="marca-vacantes" type="text" inputMode="numeric" placeholder="Ej. 120" className="[height:56px] [padding:16px_20px] [border:2px_solid_#1E1E1E] [border-radius:24px] [font-size:16px] [color:#1E1E1E] [background:#FFFFFF]" />
                   </div>
                 </div>
-                <button type="submit" className="[align-self:flex-start] [min-height:52px] [padding:0_32px] [background:#5251F7] [color:#FFFFFF] border-none [border-radius:999px] [font-weight:700] [font-size:17px] [box-shadow:4px_4px_0_#3535BA] cursor-pointer">Soy marca</button>
+                <div className="flex flex-col gap-[14px]">
+                  <CasillaLegal id="hc-m-acepto" checked={marca.aviso} error={errorMarca}
+                    onChange={v => { setMarca(m => ({ ...m, aviso: v })); if (v) setErrorMarca(''); }}>
+                    Acepto el <EnlaceLegal href="/aviso-de-privacidad">Aviso de Privacidad</EnlaceLegal>, los <EnlaceLegal href="/terminos-y-condiciones">Términos y Condiciones</EnlaceLegal> y el <EnlaceLegal href="/uso-de-informacion">Uso de Información</EnlaceLegal>.
+                  </CasillaLegal>
+                  <CasillaLegal id="hc-m-comunicaciones" checked={marca.comunicaciones}
+                    onChange={v => setMarca(m => ({ ...m, comunicaciones: v }))}>
+                    Quiero recibir comunicaciones comerciales de Hey Chamba. <span className="[color:#565656]">(Opcional)</span>
+                  </CasillaLegal>
+                </div>
+                <button type="submit" disabled={!marca.aviso} className="[align-self:flex-start] [min-height:52px] [padding:0_32px] [background:#5251F7] [color:#FFFFFF] border-none [border-radius:999px] [font-weight:700] [font-size:17px] [box-shadow:4px_4px_0_#3535BA] cursor-pointer disabled:[opacity:0.45] disabled:cursor-not-allowed disabled:[box-shadow:none]">Soy marca</button>
               </form>
               </div>
 
@@ -683,7 +745,7 @@ export default function Landing({ showGrid = true, showFotos = true, showFormula
                   {[
                     { color: '#C4E539', dato: '20%', texto: 'de las bajas ocurren con CERO días trabajados' },
                     { color: '#DFA0F9', dato: '2 de 3', texto: 'candidatos viven lejos de donde los contratan' },
-                    { color: '#A1DBFF', dato: '80%', texto: 'del talento de alto volumen tiene 18\u201328 años' },
+                    { color: '#A1DBFF', dato: '80%', texto: 'del talento de alto volumen tiene 18–28 años' },
                   ].map(({ color, dato, texto }) => (
                     <div key={dato} className="[background:#1E1E1E] [border-radius:24px] [box-shadow:8px_8px_0_#3535BA] overflow-hidden flex flex-col">
                       <div className="[height:8px]" style={{ background: color }}></div>
@@ -694,7 +756,7 @@ export default function Landing({ showGrid = true, showFotos = true, showFormula
                     </div>
                   ))}
                 </div>
-                <p className="m-0 [font-size:13px] [font-style:italic] [line-height:1.45] [color:rgba(255,255,255,0.72)]">Fuente: análisis de 5,615 bajas reales de retail en México (2023\u20132026) y 203 contrataciones.</p>
+                <p className="m-0 [font-size:13px] [font-style:italic] [line-height:1.45] [color:rgba(255,255,255,0.72)]">Fuente: análisis de 5,615 bajas reales de retail en México (2023–2026) y 203 contrataciones.</p>
               </div>
             </div>
           </div>
@@ -807,8 +869,10 @@ export default function Landing({ showGrid = true, showFotos = true, showFormula
             <div className="grid [grid-template-columns:repeat(auto-fit,minmax(200px,1fr))] gap-[24px]">
               <div className="flex flex-col gap-[10px]">
                 <span className="[font-weight:700] [font-size:14px] [color:#FFFFFF]">Legal</span>
-                <a href="#aviso" className="[font-size:14px] [color:rgba(255,255,255,0.8)]">Aviso de privacidad</a>
-                <a href="#terminos" className="[font-size:14px] [color:rgba(255,255,255,0.8)]">Términos y condiciones</a>
+                <a href="/aviso-de-privacidad" className="[font-size:14px] [color:rgba(255,255,255,0.8)] hover:underline">Aviso de Privacidad</a>
+                <a href="/aviso-de-privacidad-simplificado" className="[font-size:14px] [color:rgba(255,255,255,0.8)] hover:underline">Aviso de Privacidad Simplificado</a>
+                <a href="/uso-de-informacion" className="[font-size:14px] [color:rgba(255,255,255,0.8)] hover:underline">Uso de Información</a>
+                <a href="/terminos-y-condiciones" className="[font-size:14px] [color:rgba(255,255,255,0.8)] hover:underline">Términos y Condiciones</a>
               </div>
               <div className="flex flex-col gap-[10px]">
                 <span className="[font-weight:700] [font-size:14px] [color:#FFFFFF]">Contacto</span>
@@ -822,7 +886,15 @@ export default function Landing({ showGrid = true, showFotos = true, showFormula
                 <a href="https://www.linkedin.com/company/heychamba/" target="_blank" rel="noreferrer" className="[font-size:14px] [color:rgba(255,255,255,0.8)]">LinkedIn</a>
               </div>
             </div>
-            <span className="[font-size:13px] [color:rgba(255,255,255,0.6)]">© 2026 HeyChamba. Festival virtual de empleo, México.</span>
+            <div className="flex flex-col gap-[8px]">
+              {/* Identificación del responsable: la pide la LFPDPPP. */}
+              <span className="[font-size:12px] [line-height:1.55] [color:rgba(255,255,255,0.55)]">
+                Hey Chamba es un nombre comercial registrado.<br/>
+                Col. Juárez, Alcaldía Cuauhtémoc, CDMX, C.P. 06600.<br/>
+                Contacto en materia de datos personales: <a href="mailto:misdatos@heychamba.com" className="[color:rgba(255,255,255,0.75)] hover:underline">misdatos@heychamba.com</a>
+              </span>
+              <span className="[font-size:13px] [color:rgba(255,255,255,0.6)]">© 2026 HeyChamba. Festival virtual de empleo, México.</span>
+            </div>
           </div>
         </footer>
       

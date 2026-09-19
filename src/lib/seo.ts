@@ -17,9 +17,12 @@ type Opciones = {
   ruta: string;
   /* Las pantallas privadas (pase, confirmación, asistencia) no se indexan. */
   privada?: boolean;
+  /* Las páginas legales tampoco se indexan, pero sí queremos que Google
+     siga los enlaces que llevan de vuelta al sitio. */
+  noindexSeguir?: boolean;
 };
 
-export function meta({ titulo, descripcion, ruta, privada = false }: Opciones) {
+export function meta({ titulo, descripcion, ruta, privada = false, noindexSeguir = false }: Opciones) {
   const url = `${SITIO}${ruta}`;
   return {
     meta: [
@@ -27,7 +30,9 @@ export function meta({ titulo, descripcion, ruta, privada = false }: Opciones) {
       { name: "description", content: descripcion },
       ...(privada
         ? [{ name: "robots", content: "noindex, nofollow" }]
-        : [{ name: "robots", content: "index, follow, max-image-preview:large" }]),
+        : noindexSeguir
+          ? [{ name: "robots", content: "noindex, follow" }]
+          : [{ name: "robots", content: "index, follow, max-image-preview:large" }]),
 
       /* Open Graph: WhatsApp, Facebook, LinkedIn, Slack */
       { property: "og:site_name", content: NOMBRE },
