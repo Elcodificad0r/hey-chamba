@@ -2,7 +2,7 @@
 
 **Diana Lucero Saucedo Leyva — "Hey Chamba" / "Küre Collective"**
 
-Última actualización: **19 de septiembre de 2026**
+Última actualización: **22 de septiembre de 2026**
 
 Los presentes Términos y Condiciones rigen el acceso y uso del sitio web
 www.heychamba.com y de los servicios que a través de él se prestan. Al registrarse
@@ -272,6 +272,6 @@ Para asuntos de datos personales: **misdatos@heychamba.com**
 | | |
 |---|---|
 | **Fecha de emisión** | 19 de septiembre de 2026 |
-| **Fecha de última actualización** | 19 de septiembre de 2026 |
+| **Fecha de última actualización** | 22 de septiembre de 2026 |
 | **Versión** | 1.0 |
 | **Publicado en** | www.heychamba.com |

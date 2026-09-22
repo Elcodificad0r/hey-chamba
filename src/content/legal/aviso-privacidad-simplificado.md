@@ -2,7 +2,7 @@
 
 **Diana Lucero Saucedo Leyva — "Hey Chamba" / "Küre Collective"**
 
-Última actualización: **19 de septiembre de 2026**
+Última actualización: **22 de septiembre de 2026**
 
 ---
 
@@ -41,7 +41,7 @@ Se tratarán sus datos de identificación y contacto (nombre, domicilio y códig
 
 ### 3.3 Transferencia que requiere su consentimiento expreso
 
-Sus datos personales serán transferidos a las empresas del sector retail y demás empresas empleadoras usuarias de la plataforma, en territorio nacional, con la finalidad de que su perfil sea considerado para las vacantes disponibles y, en su caso, sea contactado y contratado. Esta transferencia constituye el objeto esencial del servicio; de no autorizarla, no será posible prestarle el servicio de vinculación laboral. No se realizan transferencias internacionales de datos personales.
+Sus datos personales serán transferidos a las empresas del sector retail y demás empresas empleadoras usuarias de la plataforma, en territorio nacional, con la finalidad de que su perfil sea considerado para las vacantes disponibles y, en su caso, sea contactado y contratado. Esta transferencia constituye el objeto esencial del servicio; de no autorizarla, no será posible prestarle el servicio de vinculación laboral. Adicionalmente, el sitio web utiliza tecnologías de medición que implican una transferencia internacional limitada a datos de navegación hacia Google LLC y, en su caso, Meta Platforms, Inc. y LinkedIn Corporation, en los Estados Unidos de América. Esa transferencia no comprende su CURP, RFC, currículum ni el contenido de su perfil. El detalle y las opciones para oponerse están en www.heychamba.com/uso-de-informacion.
 
 ---
 

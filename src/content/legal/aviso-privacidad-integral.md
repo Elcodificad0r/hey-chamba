@@ -2,7 +2,7 @@
 
 **Diana Lucero Saucedo Leyva — "Hey Chamba" / "Küre Collective"**
 
-Última actualización: **19 de septiembre de 2026**
+Última actualización: **22 de septiembre de 2026**
 
 El presente Aviso de Privacidad Integral se emite en cumplimiento de los artículos 14, 15, 16 y demás relativos de la Ley Federal de Protección de Datos Personales en Posesión de los Particulares (en adelante, la "Ley" o "LFPDPPP"), publicada en el Diario Oficial de la Federación el 20 de marzo de 2025, con su última reforma publicada el 14 de noviembre de 2025, así como de su Reglamento y demás disposiciones aplicables. Su objeto es informar a la persona titular la existencia y características principales del tratamiento al que serán sometidos sus datos personales, a fin de que pueda tomar decisiones informadas al respecto.
 
@@ -157,8 +157,10 @@ El Responsable realiza la siguiente transferencia de datos personales, la cual c
 |---|---|---|---|
 | Empresas del sector retail y demás empresas empleadoras usuarias de la plataforma | México | Poner a su disposición el perfil de la persona candidata a efecto de que ésta pueda ser considerada, contactada y, en su caso, contratada; fungir como puente entre la persona candidata y la empresa empleadora. | Requiere su consentimiento expreso, el cual se recaba mediante casilla específica en el formato de consentimiento. |
 | Autoridades administrativas, fiscales, laborales y jurisdiccionales | México | Dar cumplimiento a requerimientos fundados y motivados y a obligaciones legales a cargo del Responsable. | No requiere consentimiento (artículos 9, fracción I y 36, fracciones I y V de la Ley). |
+| Google LLC y, en su caso, Meta Platforms, Inc. y LinkedIn Corporation | Estados Unidos de América | Administrar las etiquetas de medición del sitio web y, cuando se habiliten, medir la efectividad de las campañas publicitarias del Responsable. Se limita a los datos de navegación descritos en el documento de [Uso de Información y Cookies](/uso-de-informacion). | Ver el apartado 5 de dicho documento. No comprende los datos señalados en el renglón siguiente. |
 
-- El Responsable **NO** realiza transferencias internacionales de datos personales.
+- Salvo la transferencia señalada en el renglón anterior, que deriva de las tecnologías de medición descritas en el documento de [Uso de Información y Cookies](/uso-de-informacion), el Responsable **NO** realiza otras transferencias internacionales de datos personales.
+- Esa transferencia se limita a datos de navegación. **No** comprende su CURP, RFC, número de seguridad social, domicilio exacto, datos de nómina, expectativa de ingresos, currículum ni el contenido de su perfil de candidatura.
 - El Responsable **NO** comercializa, vende, renta ni cede sus datos personales a terceros con fines distintos a los señalados en este aviso.
 - En términos del artículo 35 de la Ley, el Responsable comunicará a todo tercero receptor el presente aviso y las finalidades a las que usted sujetó el tratamiento; el receptor asumirá las mismas obligaciones que corresponden al Responsable que transfiere.
 - Las transferencias se realizan por correo electrónico y a través de plataforma o portal seguro, con medidas razonables de control de acceso.
@@ -275,6 +277,6 @@ La entrega de sus datos personales al Responsable, el registro y uso de la plata
 | | |
 |---|---|
 | **Fecha de emisión** | 19 de septiembre de 2026 |
-| **Fecha de última actualización** | 19 de septiembre de 2026 |
+| **Fecha de última actualización** | 22 de septiembre de 2026 |
 | **Versión** | 1.0 |
 | **Publicado en** | www.heychamba.com |

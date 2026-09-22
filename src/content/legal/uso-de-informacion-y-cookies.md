@@ -2,7 +2,7 @@
 
 **Diana Lucero Saucedo Leyva — "Hey Chamba" / "Küre Collective"**
 
-Última actualización: **19 de septiembre de 2026**
+Última actualización: **22 de septiembre de 2026**
 
 ---
 
@@ -43,33 +43,29 @@ Nos permiten entender de forma agregada cómo se usa el sitio: qué secciones se
 
 ### 3.3 De publicidad y medición de campañas *(requieren su consentimiento)*
 
-> **A la fecha de última actualización de este documento, el Responsable NO tiene
-> activas cookies de publicidad ni de medición de terceros en el sitio.** Este
-> apartado describe las tecnologías que, en su caso, podrían habilitarse más
-> adelante, las cuales no operarán sin su consentimiento expreso previo y sin la
-> actualización correspondiente del Aviso de Privacidad Integral.
+Permiten medir la efectividad de nuestras campañas y, en su caso, mostrarle publicidad relevante de Hey Chamba en plataformas de terceros.
 
-Permiten medir la efectividad de nuestras campañas y mostrarle publicidad relevante de Hey Chamba en plataformas de terceros. De habilitarse, comprenderían:
+| Tecnología | Proveedor | Estado | Finalidad |
+|---|---|---|---|
+| **Google Tag Manager** | Google LLC | **Activo** | Administrar de forma centralizada las etiquetas de medición del sitio. Por sí solo no instala cookies ni recaba datos de comportamiento; su función es cargar, cuando corresponde, las etiquetas señaladas en los renglones siguientes. |
+| **Meta Pixel** | Meta Platforms, Inc. | No activo | Medir conversiones de campañas en Facebook e Instagram y formar audiencias publicitarias |
+| **LinkedIn Insight Tag** | LinkedIn Corporation | No activo | Medir conversiones de campañas en LinkedIn y formar audiencias publicitarias |
 
-| Tecnología | Proveedor | Finalidad |
-|---|---|---|
-| **Meta Pixel** | Meta Platforms, Inc. | Medir conversiones de campañas en Facebook e Instagram y formar audiencias publicitarias |
-| **LinkedIn Insight Tag** | LinkedIn Corporation | Medir conversiones de campañas en LinkedIn y formar audiencias publicitarias |
+Las tecnologías señaladas como *no activas* podrán habilitarse a través del administrador de etiquetas. Su activación se reflejará en la actualización de este documento y del Aviso de Privacidad Integral.
 
 ---
 
 ## 4. Transferencias internacionales derivadas de estas tecnologías
 
-> **Situación actual: el Responsable NO realiza transferencias internacionales de
-> datos personales**, en congruencia con el apartado 9 del Aviso de Privacidad
-> Integral. Lo previsto en este apartado solo sería aplicable si las tecnologías
-> del apartado 3.3 llegaran a habilitarse, lo que exigiría modificar antes el
-> Aviso de Privacidad Integral y recabar su consentimiento expreso.
+El uso del administrador de etiquetas señalado en el apartado 3.3 implica que, al cargar el sitio, su navegador solicita un archivo a los servidores de Google LLC, ubicados en los Estados Unidos de América. En esa solicitud se comunica su dirección IP y los datos técnicos propios de toda conexión (navegador, sistema operativo e idioma). Esta comunicación constituye una transferencia internacional de datos personales.
 
-Cuando usted otorga su consentimiento a las cookies de publicidad y medición, los datos descritos en el apartado 2 son comunicados a Meta Platforms, Inc. y a LinkedIn Corporation, con domicilio en los Estados Unidos de América, quienes los tratan como responsables independientes conforme a sus propias políticas de privacidad. Esta comunicación constituye una transferencia internacional de datos personales y se realiza únicamente con su consentimiento expreso, el cual puede revocar en cualquier momento. Si usted no otorga su consentimiento, estas tecnologías no se activan y no se comunica dato alguno a dichas empresas.
+Si en el futuro se habilitan las etiquetas de Meta Platforms, Inc. y de LinkedIn Corporation, también domiciliadas en los Estados Unidos de América, les serán comunicados los datos descritos en el apartado 2. Dichas empresas los tratan como responsables independientes conforme a sus propias políticas de privacidad.
+
+En ningún caso se comunica a estos proveedores la información señalada en el apartado 6.
 
 Políticas de privacidad de los destinatarios:
 
+- Google LLC — https://policies.google.com/privacy
 - Meta Platforms, Inc. — https://www.facebook.com/privacy/policy
 - LinkedIn Corporation — https://www.linkedin.com/legal/privacy-policy
 
@@ -77,12 +73,15 @@ Políticas de privacidad de los destinatarios:
 
 ## 5. Cómo otorgar, negar o revocar su consentimiento
 
-Mientras el sitio opere únicamente con cookies estrictamente necesarias, conforme al apartado 3.1, no se requiere recabar su consentimiento. Si más adelante se habilitan cookies de analítica o de publicidad, se le presentará previamente un aviso con las opciones **"Aceptar todas"**, **"Solo las necesarias"** y **"Configurar"**, y ninguna de ellas se activará antes de su decisión.
+El administrador de etiquetas señalado en el apartado 3.3 se carga al ingresar al sitio. Por sí mismo no instala cookies ni recaba datos sobre su comportamiento; su única función es cargar, cuando corresponde, las etiquetas de medición.
 
-En todo momento puede eliminar las cookies desde la configuración de su navegador. La revocación no tiene efectos retroactivos respecto de los datos ya comunicados.
+**Antes de habilitar cualquier etiqueta de analítica o de publicidad**, el Responsable pondrá a su disposición un aviso con las opciones **"Aceptar todas"**, **"Solo las necesarias"** y **"Configurar"**, y ninguna de ellas operará sin su consentimiento previo.
+
+Mientras tanto, usted puede oponerse a la carga del administrador de etiquetas y de cualquier tecnología de rastreo mediante la configuración de su navegador, conforme al apartado 7, o utilizando extensiones de bloqueo. La revocación no tiene efectos retroactivos respecto de los datos ya comunicados.
 
 También puede administrar la publicidad basada en intereses directamente ante los proveedores:
 
+- Google — https://adssettings.google.com
 - Meta — https://www.facebook.com/adpreferences
 - LinkedIn — https://www.linkedin.com/psettings/advertising
 
