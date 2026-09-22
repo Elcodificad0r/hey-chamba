@@ -49,6 +49,7 @@ export type Database = {
       registros: {
         Row: {
           ciudad: string | null
+          auth_user_id: string | null
           clave_sesion: string | null
           codigo_postal: string | null
           colonia: string | null
@@ -78,6 +79,7 @@ export type Database = {
         }
         Insert: {
           ciudad?: string | null
+          auth_user_id?: string | null
           clave_sesion?: string | null
           codigo_postal?: string | null
           colonia?: string | null
@@ -107,6 +109,7 @@ export type Database = {
         }
         Update: {
           ciudad?: string | null
+          auth_user_id?: string | null
           clave_sesion?: string | null
           codigo_postal?: string | null
           colonia?: string | null

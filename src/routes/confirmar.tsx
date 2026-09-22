@@ -2,9 +2,10 @@
    Aquí se da por confirmado el correo y, con eso, nace su QR real. */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Globe, Mail } from "lucide-react";
+import { Globe, Mail, Pencil } from "lucide-react";
 import { confirmarCorreo } from "@/lib/registros.functions";
 import { PaseQR } from "@/components/PaseQR";
+import { urlPerfil } from "@/lib/pase";
 import { formArt } from "@/lib/heychamba-assets";
 import { meta } from "@/lib/seo";
 
@@ -54,7 +55,7 @@ function Confirmar() {
 
         {estado === "listo" && registro && <>
           <h1>{registro.nombre ? `${registro.nombre.split(" ")[0]}, ¡correo confirmado!` : "¡Correo confirmado!"}</h1>
-          <p>Este es tu QR. Es tu pase: con él entras al festival y con él tomamos tu asistencia. Guárdalo en tu celular.</p>
+          <p>Este es tu QR. Es tu pase: con él entras al festival y con él tomamos tu asistencia. Guárdalo en tu celular; también te lo mandamos por correo. Es solo tuyo y no es transferible.</p>
           <PaseQR qrToken={registro.qrToken} nombre={registro.nombre}/>
           {registro.email && <div className="verify-mail"><Mail/><div><strong>Correo confirmado</strong><span>{registro.email}</span></div></div>}
         </>}
@@ -69,6 +70,18 @@ function Confirmar() {
           <p>No pudimos confirmar tu correo en este momento. Intenta abrir el enlace de nuevo en un ratito.</p>
         </>}
 
+        {/* Ya confirmó: lo mandamos a su portal. El QR se queda arriba,
+            por si quiere guardarlo antes de irse. */}
+        {/* No hay panel de perfil: lo único que puede hacer desde aquí es
+            corregir sus respuestas. Va como aviso, no como botón principal,
+            para que el protagonista siga siendo el QR. */}
+        {estado === "listo" && <div className="aviso-correccion">
+          <Pencil/>
+          <p>
+            ¿Te equivocaste en alguna respuesta?{" "}
+            <a href={urlPerfil()}>Cámbiala aquí</a>
+          </p>
+        </div>}
         <Link to="/" className="survey-next"><Globe/> Volver al inicio</Link>
       </div>
     </section>

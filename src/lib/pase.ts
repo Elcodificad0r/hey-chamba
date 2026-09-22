@@ -8,6 +8,15 @@
    ───────────────────────────────────────────────────────────── */
 const SITIO = "https://www.heychamba.com";
 
+/* El portal del candidato, que vive en otra app y comparte este Supabase. */
+export const APP_CANDIDATO = "https://app.heychamba.com/acceso-candidato";
+
+/* Ahí la persona pide su propio enlace por correo; el portal maneja su
+   propia sesión. Nosotros solo la mandamos a la puerta. */
+export function urlPerfil(): string {
+  return APP_CANDIDATO;
+}
+
 export function valorQR(qrToken: string): string {
   const origen = typeof window !== "undefined" ? window.location.origin : SITIO;
   return `${origen}/pase?p=${encodeURIComponent(qrToken)}`;

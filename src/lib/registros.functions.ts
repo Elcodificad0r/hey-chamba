@@ -76,6 +76,28 @@ export const guardarFase1 = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => fase1Schema.parse(data))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    /* Si ya dejó sus datos antes con ese correo, reusamos su fila en vez de
+       crear otra: pasaba que alguien picaba el botón dos o tres veces y
+       quedaban filas vacías con el mismo nombre. No tocamos su estatus,
+       para no degradar un perfil que ya estaba completo. */
+    const { data: previo } = await supabaseAdmin
+      .from("registros")
+      .select("folio, clave_sesion")
+      .eq("email", data.email)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (previo?.folio) {
+      const claveSesion = previo.clave_sesion ?? nuevaClave();
+      const { error } = await supabaseAdmin
+        .from("registros")
+        .update({ nombre: data.nombre, telefono: data.telefono, clave_sesion: claveSesion })
+        .eq("folio", previo.folio);
+      if (error) throw new Error(error.message);
+      return { folio: previo.folio as string, claveSesion };
+    }
+
     const claveSesion = nuevaClave();
     const { data: fila, error } = await supabaseAdmin
       .from("registros")
@@ -119,6 +141,41 @@ export const guardarPerfil = createServerFn({ method: "POST" })
       no_terminado: false,
       respuestas: data.respuestas as never,
     };
+    /* ¿Esa CURP ya tiene fila? Si es de la misma persona —mismo correo, que
+       además ya verificó— volvió a llenar el formulario: fusionamos en su
+       fila de siempre y nos quedamos con las respuestas nuevas. Así conserva
+       su folio, su pase y su confirmación, y no nace un duplicado.
+       Si el correo es otro, no fusionamos: ahí sí es alguien más usando una
+       CURP ajena, y eso lo sigue atajando el aviso de "ya tienes registro". */
+    if (curp) {
+      const { data: dueno } = await supabaseAdmin
+        .from("registros")
+        .select("folio, email, email_confirmacion, clave_sesion")
+        .eq("curp", curp)
+        .maybeSingle();
+
+      const correoNuevo = (data.emailConfirmacion || "").toLowerCase();
+      const mismaPersona = dueno && dueno.folio !== data.folio && correoNuevo && (
+        (dueno.email ?? "").toLowerCase() === correoNuevo ||
+        (dueno.email_confirmacion ?? "").toLowerCase() === correoNuevo
+      );
+
+      if (mismaPersona) {
+        const clave = dueno.clave_sesion ?? claveSesion;
+        const { error } = await supabaseAdmin
+          .from("registros")
+          .update({ ...campos, clave_sesion: clave })
+          .eq("folio", dueno.folio);
+        if (error) throw new Error(error.message);
+
+        /* La fila con la que venía trabajando esta sesión sobra. */
+        if (data.folio && data.folio !== dueno.folio) {
+          await supabaseAdmin.from("registros").delete().eq("folio", data.folio);
+        }
+        return { folio: dueno.folio as string, claveSesion: clave };
+      }
+    }
+
     if (data.folio) {
       const { data: fila, error } = await supabaseAdmin
         .from("registros")
@@ -304,7 +361,7 @@ export const confirmarCorreo = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: fila, error } = await supabaseAdmin
       .from("registros")
-      .select("folio, nombre, email_confirmacion, correo_confirmado, qr_token")
+      .select("folio, nombre, email_confirmacion, correo_confirmado, qr_token, auth_user_id")
       .eq("token_confirmacion", data.token)
       .maybeSingle();
     if (error) throw new Error(error.message);
@@ -328,10 +385,29 @@ export const confirmarCorreo = createServerFn({ method: "POST" })
       if (errorUpdate) throw new Error(errorUpdate.message);
     }
 
+    /* Con el correo ya verificado le creamos su usuario, para que después
+       pueda entrar a corregir sus respuestas sin volver a identificarse. */
+    const email = (fila.email_confirmacion ?? "") as string;
+    if (email && !fila.auth_user_id) {
+      const { usuarioDeAuth } = await import("@/lib/acceso.server");
+      const usuario = await usuarioDeAuth(email);
+      if (usuario) {
+        await supabaseAdmin.from("registros").update({ auth_user_id: usuario }).eq("folio", fila.folio);
+      }
+    }
+
+    /* Y le mandamos su QR por correo. En el celular mucha gente no alcanza a
+       guardarlo, y así lo tiene en su bandeja el día del festival.
+       Solo la primera vez: si vuelve a abrir el enlace, no se repite. */
+    if (email && !fila.correo_confirmado) {
+      void enviarPasePorCorreo(email, (fila.nombre ?? "") as string, qrToken)
+        .catch(error => console.error("[Pase] No se pudo enviar el QR:", error));
+    }
+
     /* Nunca devolvemos el folio: es interno. */
     return {
       nombre: (fila.nombre ?? "") as string,
-      email: (fila.email_confirmacion ?? "") as string,
+      email,
       qrToken,
     };
   });
@@ -503,3 +579,22 @@ export const reenviarPorCurp = createServerFn({ method: "POST" })
     const res = await enviarCorreo({ para: destino, asunto: mensaje.asunto, html: mensaje.html, texto: mensaje.texto });
     return { enviado: res.enviado, tipo: "retomar" as const };
   });
+
+/* Arma el QR como PNG en el servidor y lo manda adjunto. Va aparte de la
+   respuesta para que la pantalla no espere al correo. */
+async function enviarPasePorCorreo(email: string, nombre: string, qrToken: string): Promise<void> {
+  const { enviarCorreo, plantillaPase, urlDelSitio } = await import("@/lib/correo.server");
+  const QRCode = (await import("qrcode")).default;
+
+  const enlace = `${urlDelSitio()}/pase?p=${encodeURIComponent(qrToken)}`;
+  const png = await QRCode.toBuffer(enlace, { width: 600, margin: 2, color: { dark: "#111111", light: "#FFFFFF" } });
+  const mensaje = plantillaPase(nombre, enlace);
+
+  await enviarCorreo({
+    para: email,
+    asunto: mensaje.asunto,
+    html: mensaje.html,
+    texto: mensaje.texto,
+    adjuntos: [{ nombre: "pase-heychamba.png", contenido: png }],
+  });
+}

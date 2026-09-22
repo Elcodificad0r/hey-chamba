@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useBlocker, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ComponentType } from "react";
-import { ArrowLeft, Bike, BookOpen, BriefcaseBusiness, Bus, CalendarDays, Car, Check, Globe, ChevronLeft, Clock3, GraduationCap, Handshake, Heart, KeyRound, LockKeyhole, Mail, MapPin, Minus, PersonStanding, Plus, School, Star, UserRound, X } from "lucide-react";
+import { ArrowLeft, Bike, BookOpen, Pencil, BriefcaseBusiness, Bus, CalendarDays, Car, Check, Globe, ChevronLeft, Clock3, GraduationCap, Handshake, Heart, KeyRound, LockKeyhole, Mail, MapPin, Minus, PersonStanding, Plus, School, Star, UserRound, X } from "lucide-react";
 import gsap from "gsap";
 import { Button } from "@/components/ui/button";
 import { formArt, formIcons as icons } from "@/lib/heychamba-assets";
@@ -10,6 +10,7 @@ import globePoster from "@/assets/globe-poster.png";
 import { HeyChambaMenu } from "@/components/HeyChambaMenu";
 import { enviarConfirmacion, estadoConfirmacion, reenviarPorCurp, revisarCurp, guardarEspera, guardarNoTerminado, guardarPerfil, retomarRegistro } from "@/lib/registros.functions";
 import { PaseQR } from "@/components/PaseQR";
+import { urlPerfil } from "@/lib/pase";
 import { meta } from "@/lib/seo";
 
 export const Route = createFileRoute("/registro")({
@@ -597,7 +598,16 @@ function Registro() {
           {/* Mientras no esté configurado el dominio de correo, el enlace sale aquí para poder probarlo. */}
           {enlacePrueba && <div className="verify-mail"><Mail/><div><strong>Enlace de prueba</strong><a href={enlacePrueba}>Confirmar mi correo</a><span>Sale aquí porque todavía no configuramos el dominio de correo.</span></div></div>}
         </>}
-        {confirmado && <div className="verify-mail"><Mail/><div><strong>Correo confirmado</strong><span>{confirmEmail || contacto.email}</span></div></div>}
+        {confirmado && <>
+          <div className="verify-mail"><Mail/><div><strong>Correo confirmado</strong><span>{confirmEmail || contacto.email}</span></div></div>
+          <div className="aviso-correccion">
+            <Pencil/>
+            <p>
+              ¿Te equivocaste en alguna respuesta?{" "}
+              <a href={urlPerfil()}>Cámbiala aquí</a>
+            </p>
+          </div>
+        </>}
 
         <Button onClick={() => { setIndex(0); setDone(false); setSaved(false); setConfirmado(false); setEnviado(false); setEnlacePrueba(""); setClave(""); setQrToken(""); yaGuardamos.current = false; yaMandamos.current = false; setAnswers({ emp: 1 }); }} className="survey-reset">Volver a empezar</Button>
       </div> : waiting ? <div className="survey-waiting" data-q-part><img src={formArt.waiting} alt=""/><h1>¡Gracias!</h1><p>Guardamos {city.trim() ? `tu ciudad (${city.trim()})` : "tu ciudad"}. En cuanto HeyChamba llegue ahí, nos ponemos en contacto contigo.</p><Link to="/" className="survey-next"><Globe/> Volver al inicio</Link><Button onClick={() => { setIndex(0); setWaiting(false); setPostal(null); setPostalState("idle"); setCity(""); setAnswers({ emp: 1 }); }} className="survey-reset">Volver a empezar</Button></div> : <>

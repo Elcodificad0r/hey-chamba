@@ -1,8 +1,8 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
-/* El portal de la cuenta. Mientras esté vacío, el botón de "mi cuenta" no
-   se pinta en el encabezado: es preferible que no exista a que mande a un
-   sitio que todavía no levanta. Se prende poniendo aquí la dirección. */
+/* No hay panel de cuenta: la persona solo puede volver a corregir sus
+   respuestas, y a eso se llega desde el aviso de la pantalla final, no
+   desde el encabezado. Mientras esto esté vacío el botón no se pinta. */
 const PORTAL = '';
 import { CasillaLegal, EnlaceLegal } from '@/components/CasillaLegal';
 import gsap from 'gsap';

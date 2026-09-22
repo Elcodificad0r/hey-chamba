@@ -19,7 +19,11 @@ export function correoConfigurado(): boolean {
   return Boolean(process.env["RESEND_API_KEY"] && process.env["CORREO_REMITENTE"]);
 }
 
-export async function enviarCorreo(mensaje: { para: string; asunto: string; html: string; texto: string }): Promise<ResultadoCorreo> {
+type Adjunto = { nombre: string; contenido: Buffer };
+
+export async function enviarCorreo(mensaje: {
+  para: string; asunto: string; html: string; texto: string; adjuntos?: Adjunto[];
+}): Promise<ResultadoCorreo> {
   const apiKey = process.env["RESEND_API_KEY"];
   const remitente = process.env["CORREO_REMITENTE"];
   /* El remitente es un buzón de solo envío: no recibe nada. Si alguien le
@@ -41,6 +45,9 @@ export async function enviarCorreo(mensaje: { para: string; asunto: string; html
         html: mensaje.html,
         text: mensaje.texto,
         reply_to: responderA,
+        ...(mensaje.adjuntos?.length
+          ? { attachments: mensaje.adjuntos.map(a => ({ filename: a.nombre, content: a.contenido.toString("base64") })) }
+          : {}),
       }),
       signal: AbortSignal.timeout(10000),
     });
@@ -98,15 +105,20 @@ export function plantillaRecordatorio(nombre: string, enlace: string) {
   };
 }
 
-/* Para quien ya confirmó y perdió el correo: aquí está tu pase otra vez. */
+/* El pase, con el QR adjunto. Se manda al confirmar el correo, para que
+   quien no pudo guardarlo desde el celular lo tenga en su bandeja. */
 export function plantillaPase(nombre: string, enlace: string) {
   const saludo = nombre ? `${nombre.split(" ")[0]}, ` : "";
   return {
-    asunto: "Aquí está tu pase — HeyChamba",
-    html: marco("Tu pase HeyChamba", `
-      <p style="font-size:16px;line-height:1.5;margin:0 0 20px">${saludo}ya tenías tu lugar apartado. Abre esta liga y ahí está tu QR: es tu pase para el festival, y con él tomamos tu asistencia.</p>
-      <p style="margin:0 0 20px">${boton(enlace, "Ver mi pase")}</p>
+    asunto: "Tu pase para el festival — HeyChamba",
+    html: marco("Aquí está tu pase", `
+      <p style="font-size:16px;line-height:1.5;margin:0 0 18px">${saludo}tu lugar está apartado. Te adjuntamos tu QR en este correo para que lo tengas a la mano el día del festival, por si no alcanzaste a guardarlo en tu celular.</p>
+      <div style="margin:0 0 20px;padding:16px 18px;background:#FAF7F0;border-left:5px solid #C4E539;border-radius:0 12px 12px 0">
+        <p style="font-size:15px;line-height:1.5;margin:0 0 10px"><strong>Tu QR es único y es solo tuyo.</strong></p>
+        <p style="font-size:15px;line-height:1.5;margin:0">Con él tomamos tu asistencia en la entrada, así que <strong>no es transferible</strong>: funciona una sola vez y está ligado a tu nombre. En la puerta podemos pedirte una identificación para cotejarlo. Si se lo compartes a alguien más, esa persona no va a poder entrar y tú te quedas sin tu lugar.</p>
+      </div>
+      <p style="margin:0 0 20px">${boton(enlace, "Ver mi pase en línea")}</p>
       <p style="font-size:13px;color:#555;line-height:1.5;margin:0">Si el botón no abre, copia esta liga:<br><span style="word-break:break-all">${enlace}</span></p>`),
-    texto: `${saludo}aquí está tu pase: ${enlace}`,
+    texto: `${saludo}aquí está tu pase para el festival. Tu QR es único, no es transferible y sirve una sola vez: con él tomamos tu asistencia. Míralo en línea: ${enlace}`,
   };
 }
